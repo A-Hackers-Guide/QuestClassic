@@ -2,7 +2,6 @@ package io.github.questclassic.app.os
 
 import android.content.Context
 import android.os.Build
-import android.os.SystemProperties
 import java.lang.reflect.Method
 
 /**

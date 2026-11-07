@@ -24,9 +24,6 @@ class AppContainer(private val app: Context) {
     val introspection: DeviceIntrospection = DeviceIntrospection(app)
     val updater: SelfUpdater = SelfUpdater(app, http)
     val ai: AIRepository = AIRepository(app, http)
-<<<<<<< HEAD
     val payloadVerifier: PayloadVerifier = PayloadVerifier(app)
-=======
     val systemProbe: SystemPropertyProbe = SystemPropertyProbe()
->>>>>>> 5304970 (feat: SystemInternals panel — surface RE findings live on-device)
 }
