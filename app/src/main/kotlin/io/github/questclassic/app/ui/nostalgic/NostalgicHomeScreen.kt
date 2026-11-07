@@ -1,0 +1,118 @@
+package io.github.questclassic.app.ui.nostalgic
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Chat
+import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.ViewInAr
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.dp
+import io.github.questclassic.app.core.AppContainer
+import io.github.questclassic.app.ui.panels.AIAssistantPanel
+import io.github.questclassic.app.ui.panels.BuildToolsPanel
+import io.github.questclassic.app.ui.panels.DiagnosticsPanel
+import io.github.questclassic.app.ui.panels.LauncherPanel
+import io.github.questclassic.app.ui.panels.SettingsPanel
+import io.github.questclassic.app.ui.panels.UpdatePanel
+import io.github.questclassic.app.ui.theme.QCColors
+
+/**
+ * The home surface. Six "tile" panels — tap one to open; close returns here (back button or
+ * a tile close affordance). Deliberately a flat navigation model so the UX feels snappy on the
+ * head.
+ */
+enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS }
+
+@Composable
+fun NostalgicHomeScreen(container: AppContainer) {
+    var screen by remember { mutableStateOf(HomeScreen.HOME) }
+    val bg = Brush.verticalGradient(listOf(QCColors.Space, QCColors.Deep))
+    Box(Modifier.fillMaxSize().background(bg).padding(24.dp)) {
+        when (screen) {
+            HomeScreen.HOME -> HomeGrid(onOpen = { screen = it })
+            HomeScreen.LAUNCHER -> LauncherPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.DIAGNOSTICS -> DiagnosticsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.AI -> AIAssistantPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.BUILD -> BuildToolsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.UPDATE -> UpdatePanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.SETTINGS -> SettingsPanel(container) { screen = HomeScreen.HOME }
+        }
+    }
+}
+
+@Composable
+private fun HomeGrid(onOpen: (HomeScreen) -> Unit) {
+    Column(Modifier.fillMaxSize()) {
+        // Masthead
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("QUESTCLASSIC", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "Shelf",
+                    style = MaterialTheme.typography.displayLarge,
+                    color = QCColors.Soft,
+                )
+            }
+            ChipLabel("v0.1.0", QCColors.Amber)
+        }
+        Spacer(Modifier.height(20.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(HomeTile.ALL) { tile ->
+                TileButton(
+                    icon = tile.icon,
+                    title = tile.title,
+                    description = tile.desc,
+                    onClick = { onOpen(tile.screen) },
+                )
+            }
+        }
+    }
+}
+
+private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.ui.graphics.vector.ImageVector, val title: String, val desc: String) {
+    companion object {
+        val ALL = listOf(
+            HomeTile(HomeScreen.LAUNCHER, Icons.Outlined.Apps, "Launcher", "Every app on the headset, retro grid."),
+            HomeTile(HomeScreen.DIAGNOSTICS, Icons.Outlined.MonitorHeart, "Diagnostics", "Self-tests. Fails buzz the controllers in code."),
+            HomeTile(HomeScreen.AI, Icons.Outlined.Chat, "AI Companion", "Name it. Pick a model. Give it a mission."),
+            HomeTile(HomeScreen.BUILD, Icons.Outlined.Build, "Build Tools", "Compose your own HUD out of widgets."),
+            HomeTile(HomeScreen.UPDATE, Icons.Outlined.CloudDownload, "Updates", "Self-update from our own release channel."),
+            HomeTile(HomeScreen.SETTINGS, Icons.Outlined.Info, "About / System", "What the headset thinks it is."),
+        )
+    }
+}

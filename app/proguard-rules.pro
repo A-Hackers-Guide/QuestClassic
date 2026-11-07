@@ -1,0 +1,4 @@
+-keep class io.github.questclassic.app.ai.** { *; }
+-keepclassmembers class io.github.questclassic.app.update.GithubRelease { *; }
+-keepclassmembers class io.github.questclassic.app.update.GithubAsset { *; }
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
