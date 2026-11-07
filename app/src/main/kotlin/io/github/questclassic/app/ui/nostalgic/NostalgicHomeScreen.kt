@@ -21,8 +21,9 @@ import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MonitorHeart
-import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.outlined.Policy
+import androidx.compose.material.icons.outlined.Public
+import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.outlined.ViewInAr
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import io.github.questclassic.app.ui.panels.AIAssistantPanel
 import io.github.questclassic.app.ui.panels.BuildToolsPanel
 import io.github.questclassic.app.ui.panels.DiagnosticsPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
+import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
 import io.github.questclassic.app.ui.panels.SettingsPanel
 import io.github.questclassic.app.ui.panels.SignatureVerifierPanel
 import io.github.questclassic.app.ui.panels.SystemInternalsPanel
@@ -52,7 +54,7 @@ import io.github.questclassic.app.ui.theme.QCColors
  * a tile close affordance). Deliberately a flat navigation model so the UX feels snappy on the
  * head.
  */
-enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS }
+enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS, META_HOSTS }
 
 @Composable
 fun NostalgicHomeScreen(container: AppContainer) {
@@ -69,6 +71,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.SETTINGS -> SettingsPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.SIG_VERIFY -> SignatureVerifierPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.INTERNALS -> SystemInternalsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.META_HOSTS -> MetaHostsAuditPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -121,6 +124,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.SETTINGS, Icons.Outlined.Info, "About / System", "What the headset thinks it is."),
             HomeTile(HomeScreen.SIG_VERIFY, Icons.Outlined.Verified, "Signature Verifier", "Verify a Meta OTA .zip against its own cert, on-device."),
             HomeTile(HomeScreen.INTERNALS, Icons.Outlined.Policy, "System Internals", "Build host, vendor SPL gap, HorizonOS branch, SoC, all the quirks."),
+            HomeTile(HomeScreen.META_HOSTS, Icons.Outlined.Public, "Meta Hosts Audit", "Resolve + ping every Meta host this build talks to."),
         )
     }
 }
