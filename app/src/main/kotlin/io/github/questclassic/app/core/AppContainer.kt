@@ -23,4 +23,5 @@ class AppContainer(private val app: Context) {
     val introspection: DeviceIntrospection = DeviceIntrospection(app)
     val updater: SelfUpdater = SelfUpdater(app, http)
     val ai: AIRepository = AIRepository(app, http)
+    val payloadVerifier: PayloadVerifier = PayloadVerifier(app)
 }

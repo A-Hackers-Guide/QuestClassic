@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.outlined.ViewInAr
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +41,7 @@ import io.github.questclassic.app.ui.panels.BuildToolsPanel
 import io.github.questclassic.app.ui.panels.DiagnosticsPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.SettingsPanel
+import io.github.questclassic.app.ui.panels.SignatureVerifierPanel
 import io.github.questclassic.app.ui.panels.UpdatePanel
 import io.github.questclassic.app.ui.theme.QCColors
 
@@ -48,7 +50,7 @@ import io.github.questclassic.app.ui.theme.QCColors
  * a tile close affordance). Deliberately a flat navigation model so the UX feels snappy on the
  * head.
  */
-enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS }
+enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY }
 
 @Composable
 fun NostalgicHomeScreen(container: AppContainer) {
@@ -63,6 +65,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.BUILD -> BuildToolsPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.UPDATE -> UpdatePanel(container) { screen = HomeScreen.HOME }
             HomeScreen.SETTINGS -> SettingsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.SIG_VERIFY -> SignatureVerifierPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -113,6 +116,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.BUILD, Icons.Outlined.Build, "Build Tools", "Compose your own HUD out of widgets."),
             HomeTile(HomeScreen.UPDATE, Icons.Outlined.CloudDownload, "Updates", "Self-update from our own release channel."),
             HomeTile(HomeScreen.SETTINGS, Icons.Outlined.Info, "About / System", "What the headset thinks it is."),
+            HomeTile(HomeScreen.SIG_VERIFY, Icons.Outlined.Verified, "Signature Verifier", "Verify a Meta OTA .zip against its own cert, on-device."),
         )
     }
 }
