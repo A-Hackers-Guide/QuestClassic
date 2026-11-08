@@ -9,12 +9,13 @@ It installs like any other APK (ADB sideload). It survives every Meta OTA becaus
 | Panel | Feature |
 |---|---|
 | **Launcher** | Nostalgic retro-Oculus grid of every launchable app on the headset. Tiles are tagged `VR` (teal) or `2D` (amber). Tap to launch. |
-| **Diagnostics** | Runs userspace self‑tests (battery, storage, RAM, network, device fingerprint, performance). On failures, buzzes the controllers in a Morse‑like code pattern you can match against [`docs/diagnostics_patterns.md`](docs/diagnostics_patterns.md) — works even if the display dies. |
-| **AI Companion** | You name it, pick a backend (Claude / OpenAI / local Ollama), enter your own API key, write its system prompt. Chat UI. API key stays on-device in DataStore, excluded from Android cloud backup. See [`docs/ai_providers.md`](docs/ai_providers.md). |
-| **Build Tools** | Minimizable HUD built from widgets you turn on and off. Ships with Clock + Fingerprint; more widgets are one PR each. See [`docs/widget_sdk.md`](docs/widget_sdk.md). |
+| **Diagnostics** | Runs userspace self‑tests (battery, storage, RAM, network, device fingerprint, performance). On failures, buzzes the controllers in a Morse‑like code pattern you can match against [`docs/reference/buzz-patterns.md`](docs/reference/buzz-patterns.md) — works even if the display dies. |
+| **AI Companion** | You name it, pick a backend (Claude / OpenAI / local Ollama), enter your own API key, write its system prompt. Chat UI. API key stays on-device in DataStore, excluded from Android cloud backup. See [`docs/user-guide/ai-companion.md`](docs/user-guide/ai-companion.md). |
+| **Build Tools** | Minimizable HUD built from widgets you turn on and off. Ships with 16 widgets; more widgets are one PR each. See [`docs/user-guide/build-tools.md`](docs/user-guide/build-tools.md). |
 | **Updates** | Polls this repo's GitHub Releases, offers to download and install a newer APK through Android's standard `PackageInstaller`. |
 | **About** | What your headset actually is — model, HorizonOS branch, codename, SoC, security patch (user‑facing AND the per-partition vendor one that's often years behind), reality mode. Also launches the experimental AR Home. |
-| **AR Home** | A Compose preview of the 90° semicircular hand menu. The real passthrough + hand‑tracking integration lands in the follow-up PR described in [`docs/ar_mode.md`](docs/ar_mode.md). |
+| **AR Home** | A Compose preview of the 90° semicircular hand menu. See [`docs/user-guide/ar-home.md`](docs/user-guide/ar-home.md) + [`docs/adr/0008-ar-semicircle-geometry.md`](docs/adr/0008-ar-semicircle-geometry.md). |
+| **Strip Meta / Firmware Dump / Boot Animation / Dev Super / Home Swapper / Restore** | Root-gated panels — dry-run on stock, act on rooted. See the [`docs/user-guide/`](docs/user-guide/) directory. |
 
 ## Hard constraints — read this before filing a feature request
 
@@ -94,14 +95,14 @@ Without them, debug-signed APKs are built and published; still installable via A
 
 PRs welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md). Good first PRs:
 
-- Implement any of the stub widgets in [`docs/widget_sdk.md`](docs/widget_sdk.md).
-- Add a new AI backend (see [`docs/ai_providers.md`](docs/ai_providers.md) — the interface is one function).
-- Document a new buzz pattern and wire it up ([`docs/diagnostics_patterns.md`](docs/diagnostics_patterns.md)).
+- Add a new Build Tools widget (see [`docs/user-guide/build-tools.md`](docs/user-guide/build-tools.md) + [issue #30](https://github.com/A-Hackers-Guide/QuestClassic/issues/30)).
+- Add a new AI backend (see [`docs/user-guide/ai-companion.md`](docs/user-guide/ai-companion.md) — the interface is one function; tracked in [issue #37](https://github.com/A-Hackers-Guide/QuestClassic/issues/37)).
+- Add a new buzz pattern ([`docs/reference/buzz-patterns.md`](docs/reference/buzz-patterns.md); tracked in [issue #36](https://github.com/A-Hackers-Guide/QuestClassic/issues/36)).
 - Port a diagnostic from userspace APIs (e.g., real `/sys/class/thermal` readout).
 
 ## Legal / IP posture
 
-**This repository contains only our own original code.** We do not distribute Meta's firmware, OTAs, decompiled APKs, or any of their proprietary binaries. See the parent project's `REVERSE_ENGINEERING_REPORT.md` (section 10, "Decompiled Java") for why those stay off-repo — DMCA risk is real and we're not inviting it.
+**This repository contains only our own original code.** We do not distribute Meta's firmware, OTAs, decompiled APKs, or any of their proprietary binaries. See [`docs/security/firmware-review.md`](docs/security/firmware-review.md) and [`docs/security/emulation-faq.md`](docs/security/emulation-faq.md) for why those stay off-repo — DMCA risk is real and we're not inviting it.
 
 Our tools in `tools/` can read a Meta OTA you obtained yourself from the official update servers, on your own hardware. They don't distribute anything.
 
