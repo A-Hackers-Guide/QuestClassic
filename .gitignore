@@ -13,3 +13,4 @@ release.jks
 *.jks
 .secrets/
 **/local.properties
+site/
