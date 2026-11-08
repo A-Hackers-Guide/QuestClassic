@@ -56,6 +56,16 @@ enum class Widget(val title: String, val render: @Composable (AppContainer) -> U
     NET_PING("Network ping", { NetworkPingWidget() }),
     QUICK_NOTE("Quick note", { QuickNoteWidget() }),
     CONTROLLER_HAPTIC("Haptic test", { c -> HapticTestWidget(c) }),
+    IP_ADDRESS("IP address", { IPAddressWidget() }),
+    UPTIME("Uptime", { UptimeWidget() }),
+    BATTERY("Battery", { BatteryWidget() }),
+    THERMAL_ZONES("Thermal zones", { ThermalZonesWidget() }),
+    STORAGE_BREAKDOWN("Storage breakdown", { StorageBreakdownWidget() }),
+    SOC_INFO("SoC info", { SoCInfoWidget() }),
+    PROCESS_COUNT("Process count", { ProcessCountWidget() }),
+    ROOT_STATUS("Root status", { c -> RootStatusWidget(c) }),
+    HOST_INFO("Build host", { HostInfoWidget() }),
+    SELINUX("SELinux mode", { SELinuxWidget() }),
 }
 
 @Composable
@@ -216,5 +226,173 @@ private fun HapticTestWidget(container: AppContainer) {
             }
         }
     }
+}
+
+@Composable
+private fun IPAddressWidget() {
+    var ips by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            ips = runCatching {
+                java.net.NetworkInterface.getNetworkInterfaces().asSequence()
+                    .filter { it.isUp && !it.isLoopback }
+                    .flatMap { it.inetAddresses.asSequence() }
+                    .filterNot { it.isLinkLocalAddress || it.isAnyLocalAddress }
+                    .joinToString("\n") { "${it.hostAddress}" }
+                    .ifBlank { "no addresses" }
+            }.getOrElse { it.message ?: "err" }
+            delay(5000)
+        }
+    }
+    Text(ips, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun UptimeWidget() {
+    var line by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val up = android.os.SystemClock.elapsedRealtime() / 1000
+            val d = up / 86400
+            val h = (up % 86400) / 3600
+            val m = (up % 3600) / 60
+            val s = up % 60
+            line = "${d}d ${h}h ${m}m ${s}s"
+            delay(1000)
+        }
+    }
+    Text(line, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun BatteryWidget() {
+    val ctx = LocalContext.current
+    var line by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val bm = ctx.getSystemService(Context.BATTERY_SERVICE) as android.os.BatteryManager
+            val level = bm.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            val current = bm.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) / 1000
+            line = "$level% · ${current}mA"
+            delay(2000)
+        }
+    }
+    Text(line, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun ThermalZonesWidget() {
+    var zones by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            zones = runCatching {
+                java.io.File("/sys/class/thermal/").listFiles { f -> f.name.startsWith("thermal_zone") }
+                    ?.sortedBy { it.name }
+                    ?.take(8)
+                    ?.mapNotNull { zone ->
+                        val type = java.io.File(zone, "type").takeIf { it.canRead() }?.readText()?.trim() ?: return@mapNotNull null
+                        val temp = java.io.File(zone, "temp").takeIf { it.canRead() }?.readText()?.trim()?.toIntOrNull() ?: 0
+                        "${type.take(14)}: %.1f°C".format(temp / 1000.0)
+                    }
+                    ?.joinToString("\n") ?: "unavailable"
+            }.getOrElse { it.message ?: "err" }
+            delay(2500)
+        }
+    }
+    Text(zones, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun StorageBreakdownWidget() {
+    var out by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            out = runCatching {
+                val mounts = listOf(
+                    "/" to android.os.Environment.getRootDirectory(),
+                    "/data" to android.os.Environment.getDataDirectory(),
+                    "/sdcard" to android.os.Environment.getExternalStorageDirectory(),
+                )
+                mounts.joinToString("\n") { (label, dir) ->
+                    val stat = android.os.StatFs(dir.absolutePath)
+                    val free = stat.availableBytes / (1024.0 * 1024.0 * 1024.0)
+                    val total = stat.totalBytes / (1024.0 * 1024.0 * 1024.0)
+                    "$label  %.2f / %.2f GiB".format(free, total)
+                }
+            }.getOrElse { it.message ?: "err" }
+            delay(5000)
+        }
+    }
+    Text(out, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun SoCInfoWidget() {
+    val line = remember {
+        buildString {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                append(android.os.Build.SOC_MANUFACTURER.ifBlank { "?" })
+                append(' ')
+                append(android.os.Build.SOC_MODEL.ifBlank { "?" })
+            } else {
+                append(android.os.Build.HARDWARE)
+            }
+            append(" · ")
+            append(android.os.Build.SUPPORTED_ABIS.joinToString(","))
+            append(" · ")
+            append(Runtime.getRuntime().availableProcessors())
+            append(" cores")
+        }
+    }
+    Text(line, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun ProcessCountWidget() {
+    val ctx = LocalContext.current
+    var line by remember { mutableStateOf("—") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            line = runCatching {
+                val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val procs = am.runningAppProcesses?.size ?: 0
+                "$procs running app processes"
+            }.getOrDefault("—")
+            delay(3000)
+        }
+    }
+    Text(line, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun RootStatusWidget(container: AppContainer) {
+    val status = remember { container.rootDetector.status() }
+    val col = if (status.isRooted) QCColors.OK else QCColors.Amber
+    Column {
+        Text(if (status.isRooted) "rooted (${status.confidence})" else "stock (${status.confidence})",
+            style = MaterialTheme.typography.titleMedium, color = col)
+        Spacer(Modifier.height(4.dp))
+        Text("su: ${status.suOnPath} · magisk: ${status.magiskPathsPresent} · " +
+            "sysWritable: ${status.systemWritable} · testKeys: ${status.testKeysBuild}",
+            style = MaterialTheme.typography.labelMedium, color = QCColors.Dim)
+    }
+}
+
+@Composable
+private fun HostInfoWidget() {
+    val host = remember { android.os.Build.HOST }
+    val user = remember { android.os.Build.USER }
+    val time = remember { java.text.SimpleDateFormat("yyyy-MM-dd", Locale.US).format(java.util.Date(android.os.Build.TIME)) }
+    Text("$host · $user · $time", style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun SELinuxWidget() {
+    val mode = remember {
+        runCatching { java.io.File("/sys/fs/selinux/enforce").readText().trim() }
+            .getOrElse { "?" }
+            .let { if (it == "1") "enforcing" else if (it == "0") "permissive" else "unknown" }
+    }
+    Text(mode, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
 }
 

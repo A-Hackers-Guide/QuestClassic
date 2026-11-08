@@ -147,6 +147,77 @@ A defensive security review of what we observed while reverse-engineering the Qu
 - No visible PoCs in the OTA we analysed.
 - Meta's bug bounty is where to try fuzzing this.
 
+### F-19 · `fs_mgr` fstab marks `/data` with `encryptable=footer` on a 2026 device — 🟡 Low-Medium
+
+- **Observed**: `/vendor/etc/fstab.qcom` retains the `encryptable=footer` mount flag for `/data`, a legacy full-disk-encryption indicator from before AOSP 10's file-based encryption (FBE) became mandatory.
+- **Why it matters**: On modern AOSP, FBE is table stakes; keeping FDE-flavored flags around either (a) indicates a lingering code path for FDE devices in the same kernel that could be turned on by an attacker with write access, or (b) is harmless cruft. Worth confirming which.
+- **Mitigation path**: drop the flag or confirm it's a no-op after AOSP's cryptfs refactor.
+
+### F-20 · `ro.adb.secure = 0` on userdebug branches of the same tag — 🟡 Low-Medium
+
+- **Observed**: in a leaked build-config comment, the `userdebug` variant of the same OS version has `ro.adb.secure = 0`, meaning ADB connects without prompting for auth. The *retail* build has `ro.adb.secure = 1`, which is correct.
+- **Why it matters**: if a userdebug partition ever ships to a retail device through a mis-tagged OTA, the device accepts any ADB host silently. Low likelihood, catastrophic impact.
+- **Mitigation path**: pin `ro.adb.secure=1` in retail at the vbmeta-descriptor level, so a hostile override of the prop would invalidate vbmeta.
+
+### F-21 · `com.oculus.vrshell` holds `MANAGE_USB` + `ACCESS_SURFACE_FLINGER` — informational
+
+- **Observed**: VrShell manifest grants it both of these signature-level permissions.
+- **Why it matters**: Any bug in VrShell that permits IPC injection reaches two sensitive subsystems. VrShell is a 100MB+ compiled Kotlin + C++ codebase, which is a lot of attack surface for one app that holds both USB and compositor access.
+- **Mitigation path**: split USB device detection into a dedicated minimal service with a narrow AIDL.
+
+### F-22 · WebView preload includes several Meta-only user-agent strings — 🟢 Low
+
+- **Observed**: `com.oculus.browser` resource table includes UA strings `OculusBrowser/27.0...` and `Mozilla/5.0 (Linux; Android 14; Quest 2) ... Horizon Workrooms 42`.
+- **Why it matters**: Trivially fingerprintable from any site the user visits with a Meta build. "Quest 2" + Horizon-Workrooms UAs make the device model and version self-identifying. Pure privacy observation.
+- **Mitigation path**: offer users a generic Android UA mode. Several third-party browsers do this.
+
+### F-23 · `lib/arm64-v8a/libmlperf.so` includes MLPerf benchmarking harness — informational
+
+- **Observed**: binary stringbanks contain MLPerf inference-benchmark glue.
+- **Why it matters**: benchmark harnesses frequently open developer sockets, enable extra logging, or load pre-built model-weight files from `/data/local/tmp`. Worth reviewing whether the benchmark entry points are reachable from an untrusted app, or only via a developer toggle.
+- **Mitigation path**: confirm MLPerf harness is debug-only; strip from retail if not required.
+
+### F-24 · `orchestrator` daemon exposes a UNIX socket in `/data/misc/oculus/orchestrator.sock` — informational
+
+- **Observed**: `init.rc` fragments list an `orchestrator` service binding this socket with mode `0666` under group `system`.
+- **Why it matters**: 0666 is too wide if any user-installed app is in group `system` through SELinux carve-outs (see [F-07](#f-07--selinux-carve-outs-via-oculus_neverallow_exception_---informational)). Depending on the SELinux policy's `neverallow` exceptions, this is either fine or a locally-reachable IPC surface.
+- **Mitigation path**: tighten to 0600 and gate by explicit UID.
+
+### F-25 · Partition layout omits `vendor_dlkm` but ships kernel modules out-of-tree — 🟢 Low
+
+- **Observed**: no `vendor_dlkm_a/b` partition; kernel modules come from `vendor/lib/modules`.
+- **Why it matters**: `vendor_dlkm` is the AOSP 11+ Google-recommended location for vendor kernel modules so they can be swapped via AVB-descriptor-pinned partitions. Keeping them in `vendor/` is fine, but it means module replacement is only possible via the full vendor partition, and GKI module compatibility hasn't been fully verified.
+- **Mitigation path**: migrate to `vendor_dlkm` in a future major rev.
+
+### F-26 · `com.oculus.auth` holds OAuth client secret in `/data/data/.../shared_prefs/auth_client.xml` — 🟡 Low-Medium
+
+- **Observed**: on-device Keystore API is used for the device-cert auth material (good), but the OAuth client secret used for the Meta login flow is stored in app shared-prefs in plaintext.
+- **Why it matters**: shared-prefs is readable with `adb backup` (if enabled) or with root. The device-cert HMAC flow is the real auth, so this leak only reveals the client_id/client_secret pair that identifies the *app*, not any user secret — but a leaked client_secret may still allow impersonating the Meta client to the server side.
+- **Mitigation path**: move to Android Keystore for this field too; rotate the current secret at next release.
+
+### F-27 · No `crash_dump` NDK handler visible in VrShell — 🟢 Low
+
+- **Observed**: `libshell.so` imports `android_set_abort_message` but no `sigaction(SIGSEGV,…)` or linker-supplied crash handler. Native crashes fall through to tombstoned.
+- **Why it matters**: tombstones are great forensically, but a diagnostic-grade crash dump (minidump via `crashpad`) would let Meta correlate shell crashes with telemetry without shipping full tombstones. The absence suggests either no on-device crash capture is done beyond default tombstoning, or crashpad lives in a different `.so` not yet reviewed.
+- **Mitigation path**: not a direct security issue; flagged for completeness.
+
+### F-28 · `strings vendor.img | grep -i qsee` reveals QSEE 6.0 version pinning — informational
+
+- **Observed**: QSEE version string `QC_IMAGE_VERSION_STRING=QSEE_LA.TA.MDM.4.3-00320-KAMORTA.0` corresponds to a specific Qualcomm TrustZone release. Several public CVEs were fixed in later QSEE versions.
+- **Why it matters**: establishes the relevant Qualcomm Security Bulletin cohort. Any post-release Qualcomm TZ fix after this version string cut is a candidate for "is this patch in this device?"
+- **Mitigation path**: cross-reference against current QC bulletin index at build-stamp time.
+
+### F-29 · AVB rollback-index space has only 4 slots, 2 are unused — informational
+
+- **Observed**: `vbmeta` rollback_index_location is `0` for the main image; locations 1-3 are reserved for additional vbmeta chains. Locations 2 and 3 are unused on the Quest 2.
+- **Why it matters**: pure observation — Android AVB supports up to 16 rollback indices; a device using only 2 has fewer independent signing-chain reroll vectors. Not a weakness, just a minimalistic footprint.
+
+### F-30 · `fastboot` protocol presence in retail ABL strings — informational
+
+- **Observed**: ABL binary strings include `fastboot` protocol commands (`flash`, `erase`, `getvar`, `boot`). This is standard — ABL implements fastboot — but the retail device's fastboot is heavily locked.
+- **Why it matters**: establishes the attack surface for a bootloader-reachable (not OS-reachable) attacker. Even with root they cannot reach fastboot without physical possession and the Volume-Down/+Power enter-sequence, so this is a physical-access concern only.
+- **Mitigation path**: validate `oem lock` state is pinned.
+
 ## What we did NOT look at
 
 - **TrustZone / QSEE**. Signed Qualcomm trusted apps are the owner's problem; we have no visibility beyond the fact that CMS trusted-apps serve device-cert operations.
