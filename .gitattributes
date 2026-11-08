@@ -1,0 +1,19 @@
+# Normalise line endings — LF everywhere.
+* text=auto eol=lf
+
+# Known binary types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.apk binary
+*.aab binary
+*.jar binary
+*.keystore binary
+*.jks binary
+*.zip binary
+
+# Linguist overrides — don't count generated or doc files as "the project's language"
+docs/**           linguist-documentation
+emulation/**/README.md linguist-documentation
+*.md              linguist-documentation

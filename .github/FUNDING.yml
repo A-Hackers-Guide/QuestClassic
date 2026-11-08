@@ -1,0 +1,5 @@
+# QuestClassic has no funding solicitation yet. Leaving this file present
+# so when the project opens sponsors / OpenCollective / Ko-fi later, the
+# config is where GitHub expects it.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+github: []
