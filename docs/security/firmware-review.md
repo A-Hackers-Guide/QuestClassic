@@ -218,6 +218,64 @@ A defensive security review of what we observed while reverse-engineering the Qu
 - **Why it matters**: establishes the attack surface for a bootloader-reachable (not OS-reachable) attacker. Even with root they cannot reach fastboot without physical possession and the Volume-Down/+Power enter-sequence, so this is a physical-access concern only.
 - **Mitigation path**: validate `oem lock` state is pinned.
 
+### F-31 · `init.hollywood.rc` fragments name internal Meta service codenames — 🟢 Low
+
+- **Observed**: boot init rc fragments under `/vendor/etc/init/` reference service codenames like `parfait`, `xrspd`, `mrsystemservice`, `orchestrator`, `nimble` and `pando` without any renaming or scrubbing. These map directly to internal Meta engineering team names (per the T-tasks in [F-04](#f-04--10-meta-phabricator-task-ids-retained-in-libshellso-strings--low)).
+- **Why it matters**: pure footprint. The service names + their args + the socket paths form a small internal architecture map that'd save a red-team hours of discovery.
+- **Mitigation path**: strip team codenames from release init fragments.
+
+### F-32 · `privapp-permissions-vendor.xml` grants `WRITE_SECURE_SETTINGS` to five oculus packages — 🟡 Low-Medium
+
+- **Observed**: `/vendor/etc/permissions/privapp-permissions-oculus.xml` grants `android.permission.WRITE_SECURE_SETTINGS` to `com.oculus.shell`, `com.oculus.systemux`, `com.oculus.systemactivities`, `com.oculus.updater`, and `com.oculus.horizon.auth`.
+- **Why it matters**: `WRITE_SECURE_SETTINGS` lets a holder flip any `Settings.Global` key. On stock AOSP this permission is tightly limited. Five grants on one platform is a lot of holders; any IPC injection bug in any of those five reaches the secure-settings surface.
+- **Mitigation path**: audit whether all five actually need it; prefer narrower grants (`DEVICE_POWER`, `MANAGE_USB`, etc.) where applicable.
+
+### F-33 · Kernel `.config` retained in `/proc/config.gz` is accessible from any app — 🟢 Low
+
+- **Observed**: `zcat /proc/config.gz` works from a regular app context on stock Quest 2 and exposes the full Linux kernel compile-time config.
+- **Why it matters**: reveals which security features are on (SELinux, KASLR, KPTI, STACKPROTECTOR, FORTIFY_SOURCE, usercopy hardening, etc.) and which modules are compiled in. Useful reconnaissance for an attacker; harmless for a user.
+- **Mitigation path**: AOSP's `CONFIG_IKCONFIG_PROC=n` would hide this. Or restrict read via SELinux.
+
+### F-34 · `logd` is configured with 6 MiB per-buffer ring on retail — informational
+
+- **Observed**: `logd.logpersistd` property is unset, ringbuffer is 6 MiB per buffer (system/main/radio/crash/kernel). Normal AOSP default is 1 MiB on retail.
+- **Why it matters**: more room for persistent debug logs. Pure memory cost, not a security issue; flagged because 6× the default retention is unusual for a shipping device.
+- **Mitigation path**: not needed; just worth noting as a departure from AOSP defaults.
+
+### F-35 · Kernel command-line retains `console=ttyMSM0,115200n8` — informational
+
+- **Observed**: `cat /proc/cmdline` on a booted device prints the full bootloader cmdline including an active serial console at 115200 baud.
+- **Why it matters**: serial console pins require physical access to specific test points on the board. Known from past Quest teardowns. Not an OS-reachable concern.
+- **Mitigation path**: strip serial console from retail cmdline, or terminate at kernel-boot complete. (Qualcomm BSP default; not easy for Meta to remove without upstream changes.)
+
+### F-36 · APEX modules — AOSP mainline only, no Meta-specific — informational
+
+- **Observed**: `pm list packages --apex-only` on a retail device lists only Google APEX modules (`com.android.art`, `com.android.conscrypt`, `com.android.i18n`, etc.). No Meta APEX.
+- **Why it matters**: means Meta's platform-side code is in the system/system_ext/product partitions, not in APEX. Normal for a vendor build; APEX is primarily for Mainline-updatable modules. Flagged for completeness.
+
+### F-37 · `GBoard` is NOT installed; `com.oculus.systemkeyboard` is the only IME — informational
+
+- **Observed**: `ime list` returns a single entry for `com.oculus.systemkeyboard/.KeyboardService`.
+- **Why it matters**: one IME narrows attack surface vs. phone, where any sideloaded IME can read every keystroke. Good hardening posture; just interesting to note.
+
+### F-38 · `tombstoned` retains 10 tombstones with full backtraces — 🟢 Low
+
+- **Observed**: `/data/tombstones/` holds up to 10 native-crash dumps, world-unreadable but preserved. Each includes memory maps + register state at crash time.
+- **Why it matters**: if an attacker gains a user-id crack of `AID_SYSTEM`, they can read every native crash on the device — useful for mining past exploit attempts or finding vulnerable call sites. Standard AOSP behavior, flagged for awareness.
+- **Mitigation path**: reduce retention count in retail builds; redact register state.
+
+### F-39 · `getprop ro.boot.verifiedbootstate` is `green` on retail — informational
+
+- **Observed**: AVB verifiedbootstate reports `green` (stock, verified). `getprop ro.boot.flash.locked` reports `1` (locked).
+- **Why it matters**: establishes baseline — a modified system would report `orange` or `yellow` here. Useful signal for an app to confirm it's running on an unmodified device; QuestClassic's RootDetector could use this as a sixth signal.
+- **Future work**: add `verifiedbootstate` + `flash.locked` as additional signals in [`core/RootDetector.kt`](../../app/src/main/kotlin/io/github/questclassic/app/core/RootDetector.kt).
+
+### F-40 · `/dev/kmsg` is unreadable from app context, but readable by `adb shell` (shell uid 2000) — informational
+
+- **Observed**: SELinux `app_data_file` domain cannot read `/dev/kmsg`; `shell_data_file` can.
+- **Why it matters**: an attacker who pivots into the ADB shell UID (2000) gets kernel log read access. Standard AOSP behavior; not a bug, just the attack-surface shape.
+- **Mitigation path**: not actionable — that's the point of the UID split.
+
 ## What we did NOT look at
 
 - **TrustZone / QSEE**. Signed Qualcomm trusted apps are the owner's problem; we have no visibility beyond the fact that CMS trusted-apps serve device-cert operations.
