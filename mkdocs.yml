@@ -94,6 +94,7 @@ nav:
       - Testing: contributing/testing.md
       - Release process: contributing/release-process.md
       - Toolchain uplift plan: contributing/toolchain-uplift.md
+      - Docs site: contributing/docs-site.md
       - Good first issues: contributing/good-first-issues.md
       - Achievements: contributing/achievements.md
   - Security:
