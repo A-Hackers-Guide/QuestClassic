@@ -28,6 +28,8 @@ class FunctionalityRestore(
     private val app: Context,
     private val haptics: ControllerHaptics,
     private val diagnostics: DiagnosticsEngine,
+    /** Delay function — injectable so tests can pass a no-op. Default is kotlinx coroutines delay. */
+    private val delayMs: suspend (Long) -> Unit = { ms -> delay(ms) },
 ) {
     sealed class Progress {
         data class Ask(val timeoutSec: Int) : Progress()
@@ -46,14 +48,14 @@ class FunctionalityRestore(
         emit(Progress.Ask(timeoutSec))
         // Caller cancels this flow if user says "no". If we reach here after the delay, we assume
         // the user is stuck or unresponsive.
-        delay(timeoutSec * 1000L)
+        delayMs(timeoutSec * 1000L)
 
         emit(Progress.Attempt("recalibrate tracking origin"))
-        delay(400)
+        delayMs(400)
         emit(Progress.Attempt("re-bind controllers"))
-        delay(400)
+        delayMs(400)
         emit(Progress.Attempt("re-query displays"))
-        delay(400)
+        delayMs(400)
 
         // At this point, if we had a repair worth attempting we'd have done it.
         val checks = diagnostics.runAll()
@@ -68,11 +70,11 @@ class FunctionalityRestore(
 
         // Step 3 — try to display it on screen.
         emit(Progress.ShowError(name, detail))
-        delay(600)
+        delayMs(600)
 
         // Step 4 — fallback text surface (very low-level).
         emit(Progress.Fallback(name))
-        delay(400)
+        delayMs(400)
 
         // Step 5 — tactile.
         val pattern = failing.failPattern ?: BuzzPattern.OK
