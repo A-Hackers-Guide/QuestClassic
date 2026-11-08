@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a new capability.
+title: "[feat] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [roadmap](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/roadmap/v0.2.0.md) first — your idea might be on the list.
+        Also see the [hard constraints](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/README.md#hard-constraints--read-this-before-filing-a-feature-request) — some things aren't possible on a locked bootloader.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like QuestClassic to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does it matter?
+      description: Who benefits? What's the specific user pain this fixes?
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: Proposed shape (optional)
+      description: If you've thought about implementation — a new panel, a widget, a backend, etc. — sketch it.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Sanity checks
+      options:
+        - label: I checked the hard-constraints table in the README.
+          required: true
+        - label: This can be done by a sideloaded APK (doesn't need bootloader unlock, Meta signing key, or vendor HAL access).
+          required: false
