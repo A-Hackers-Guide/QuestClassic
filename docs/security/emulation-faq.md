@@ -65,7 +65,7 @@ Three things, in order of ambition:
 
 Google's Cuttlefish is an AOSP reference cloud Android VM. It runs vanilla AOSP 14 on a Linux host. You can `adb install` QuestClassic into it and poke at the parts of the app that don't depend on HorizonOS daemons. It doesn't simulate anything Quest-specific — no VrShell, no `orchestrator`, no hand tracking, no passthrough. But it does run our own app's code paths, so it's great for CI'ing framework-side bugs without a headset.
 
-See [`emulation/cuttlefish/README.md`](../../emulation/cuttlefish/README.md).
+See [`emulation/cuttlefish/README.md`](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/emulation/cuttlefish/README.md).
 
 #### 2. `unidbg` / `qiling` — component-level fuzzing
 
@@ -79,7 +79,7 @@ Great candidates in `libshell.so`:
 
 Each is a reachable JNI entry that takes Parcels/strings in and parses them in C++ — classic parser-bug territory. If you find one, report it to Meta.
 
-See [`emulation/unidbg/README.md`](../../emulation/unidbg/README.md).
+See [`emulation/unidbg/README.md`](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/emulation/unidbg/README.md).
 
 #### 3. Static analysis
 

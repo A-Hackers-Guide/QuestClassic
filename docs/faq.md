@@ -38,7 +38,7 @@ The supported-devices allow-list in `AndroidManifest.xml` includes `hollywood` (
 
 ## Is this legal?
 
-Modifying your own device, writing apps for it, reading its OS from userspace APIs, and publishing APKs to GitHub — yes, universally legal. Reverse-engineering for interoperability is explicitly permitted under DMCA §1201(f) in the US and under similar clauses in EU/UK/AU law. We do not distribute Meta's copyrighted binaries or decompiled source; see [the README's "Legal / IP posture"](../README.md#legal--ip-posture).
+Modifying your own device, writing apps for it, reading its OS from userspace APIs, and publishing APKs to GitHub — yes, universally legal. Reverse-engineering for interoperability is explicitly permitted under DMCA §1201(f) in the US and under similar clauses in EU/UK/AU law. We do not distribute Meta's copyrighted binaries or decompiled source; see [the README's "Legal / IP posture"](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/README.md#legal--ip-posture).
 
 ## What if Meta changes their OTA format?
 

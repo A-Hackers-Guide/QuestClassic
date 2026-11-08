@@ -30,7 +30,7 @@ Gradle fetches deps on first build (~5 min). Subsequent builds are seconds.
 3. Register in `AIRepository.backends`.
 4. Build. Done.
 
-Walkthrough details in [docs/ai_providers.md](../../docs/ai_providers.md).
+Walkthrough details in [the AI Companion user guide](../user-guide/ai-companion.md).
 
 ### Add a diagnostic buzz pattern
 
@@ -50,7 +50,7 @@ Walkthrough details in [docs/ai_providers.md](../../docs/ai_providers.md).
    MY_WIDGET("My widget", @Composable { c -> MyWidget(c) }),
    ```
 3. Write `@Composable private fun MyWidget(container: AppContainer) { ... }` in the same file.
-4. Update the widget row in [`docs/widget_sdk.md`](../../docs/widget_sdk.md).
+4. Update the widget row in [the Build Tools user guide](../user-guide/build-tools.md).
 
 ### Add a whole new panel
 

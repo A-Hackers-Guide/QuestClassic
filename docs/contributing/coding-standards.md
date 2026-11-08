@@ -41,7 +41,7 @@ Short because Kotlin + Compose give us most of this for free.
 
 ## Comments
 
-Default to writing none. Add a comment only when the "why" is non-obvious. See the project-wide guidance in [CONTRIBUTING.md](../../CONTRIBUTING.md).
+Default to writing none. Add a comment only when the "why" is non-obvious. See the project-wide guidance in [CONTRIBUTING.md](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/CONTRIBUTING.md).
 
 Prefer:
 
