@@ -1,0 +1,22 @@
+name: Question
+description: Ask something that isn't a bug or feature request.
+title: "[question] "
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [FAQ](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/faq.md) and [docs](https://github.com/A-Hackers-Guide/QuestClassic/tree/main/docs) first. Everything's cross-linked.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to do? Why?

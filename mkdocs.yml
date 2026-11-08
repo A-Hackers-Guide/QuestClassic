@@ -1,0 +1,115 @@
+site_name: QuestClassic
+site_description: Sideloadable Quest 2+ companion — nostalgic launcher, buzz-pattern diagnostics, programmable AI, build-your-own HUD, AR semicircle menu, self-update channel.
+site_url: https://a-hackers-guide.github.io/QuestClassic/
+repo_name: A-Hackers-Guide/QuestClassic
+repo_url: https://github.com/A-Hackers-Guide/QuestClassic
+copyright: Copyright © 2026 QuestClassic contributors · MIT
+
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - toc:
+      permalink: true
+
+nav:
+  - Home: README.md
+  - Getting started:
+      - Install: getting-started/install.md
+      - Developer Mode: getting-started/enable-developer-mode.md
+      - First launch: getting-started/first-launch.md
+      - Troubleshooting: getting-started/troubleshooting.md
+  - User guide:
+      - Launcher: user-guide/launcher.md
+      - Diagnostics: user-guide/diagnostics.md
+      - AI Companion: user-guide/ai-companion.md
+      - Build Tools: user-guide/build-tools.md
+      - Updates: user-guide/updates.md
+      - About: user-guide/about.md
+      - Signature Verifier: user-guide/signature-verifier.md
+      - System Internals: user-guide/system-internals.md
+      - Meta Hosts Audit: user-guide/meta-hosts-audit.md
+      - AR Home: user-guide/ar-home.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Module map: architecture/module-map.md
+      - Compose UI: architecture/compose-ui.md
+      - DI container: architecture/di-container.md
+      - Coroutines: architecture/coroutines.md
+      - Storage: architecture/storage.md
+      - Theming: architecture/theming.md
+  - Reference:
+      - Buzz patterns: reference/buzz-patterns.md
+      - Permissions: reference/permissions.md
+      - Manifest: reference/manifest.md
+      - API — core: reference/api/core.md
+      - API — ai: reference/api/ai.md
+      - API — os: reference/api/os.md
+      - API — ui: reference/api/ui.md
+      - API — update: reference/api/update.md
+  - Contributing:
+      - Getting started: contributing/getting-started.md
+      - Coding standards: contributing/coding-standards.md
+      - PR process: contributing/pr-process.md
+      - Testing: contributing/testing.md
+      - Release process: contributing/release-process.md
+      - Good first issues: contributing/good-first-issues.md
+      - Achievements: contributing/achievements.md
+  - Security:
+      - Threat model: security/model.md
+      - Reporting: security/reporting.md
+      - Known limits: security/known-limits.md
+      - Dependencies: security/dependencies.md
+      - Signing: security/signing.md
+      - Firmware review: security/firmware-review.md
+  - ADRs:
+      - 0001 Record ADRs: adr/0001-record-architecture-decisions.md
+      - 0002 Jetpack Compose: adr/0002-use-jetpack-compose.md
+      - 0003 Hand-wired DI: adr/0003-hand-wired-di.md
+      - 0004 No telemetry: adr/0004-no-telemetry.md
+      - 0005 GitHub Releases: adr/0005-github-releases-as-update-channel.md
+      - 0006 material-icons-extended: adr/0006-material-icons-extended.md
+      - 0007 minSdk 29: adr/0007-min-sdk-29.md
+  - Reverse engineering:
+      - Overview: reverse-engineering/overview.md
+      - OTA format: reverse-engineering/ota-format.md
+      - AVB chain: reverse-engineering/avb-chain.md
+      - Meta auth flow: reverse-engineering/meta-auth-flow.md
+      - Hosts glossary: reverse-engineering/hosts-glossary.md
+  - Roadmap:
+      - v0.1.0: roadmap/v0.1.0.md
+      - v0.2.0: roadmap/v0.2.0.md
+      - v1.0.0: roadmap/v1.0.0.md
+  - FAQ: faq.md

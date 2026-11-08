@@ -1,0 +1,75 @@
+name: Bug report
+description: Something's broken in QuestClassic (not Meta's firmware).
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: check [troubleshooting](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/getting-started/troubleshooting.md) and search existing issues.
+
+  - type: input
+    id: version
+    attributes:
+      label: QuestClassic version
+      description: Visible in the home masthead chip and in the About panel.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Headset model
+      description: Which Meta Quest? Also fine if you're on Cuttlefish / plain Android.
+      placeholder: "Quest 2 (hollywood)"
+    validations:
+      required: true
+
+  - type: input
+    id: horizonos
+    attributes:
+      label: HorizonOS build
+      description: Open the System Internals panel; the "HorizonOS branch" value. Or Settings → About → Build on-device.
+      placeholder: "releases-oculus-14.0-v209"
+    validations:
+      required: false
+
+  - type: textarea
+    id: did
+    attributes:
+      label: What were you doing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Include a buzz pattern if one fired — match against docs/reference/buzz-patterns.md.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack trace
+      description: Output of `adb logcat | grep -i questclassic` while reproducing, if available.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Sanity checks
+      options:
+        - label: I searched existing issues and didn't find this.
+          required: true
+        - label: I'm on the latest release (Updates panel says "You're on the latest").
+          required: false
