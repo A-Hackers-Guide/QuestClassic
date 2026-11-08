@@ -268,7 +268,7 @@ A defensive security review of what we observed while reverse-engineering the Qu
 
 - **Observed**: AVB verifiedbootstate reports `green` (stock, verified). `getprop ro.boot.flash.locked` reports `1` (locked).
 - **Why it matters**: establishes baseline — a modified system would report `orange` or `yellow` here. Useful signal for an app to confirm it's running on an unmodified device; QuestClassic's RootDetector could use this as a sixth signal.
-- **Future work**: add `verifiedbootstate` + `flash.locked` as additional signals in [`core/RootDetector.kt`](../../app/src/main/kotlin/io/github/questclassic/app/core/RootDetector.kt).
+- **Future work**: add `verifiedbootstate` + `flash.locked` as additional signals in [`core/RootDetector.kt`](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/app/src/main/kotlin/io/github/questclassic/app/core/RootDetector.kt).
 
 ### F-40 · `/dev/kmsg` is unreadable from app context, but readable by `adb shell` (shell uid 2000) — informational
 
@@ -307,7 +307,7 @@ This has been tried by various research groups across the broader Qualcomm-Andro
 
 ### What IS feasible for vuln-hunting
 
-- **Component-level fuzzing with `unidbg` / Frida / emulation stubs.** Lift a specific `.so` out of the OTA (e.g., `libshell.so`'s message parser), stub its JNI env, feed it malformed input, log crashes. This is the standard mobile-security technique — see [emulation/README.md](../../emulation/README.md) for our skeleton setup.
+- **Component-level fuzzing with `unidbg` / Frida / emulation stubs.** Lift a specific `.so` out of the OTA (e.g., `libshell.so`'s message parser), stub its JNI env, feed it malformed input, log crashes. This is the standard mobile-security technique — see [`emulation/README.md`](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/emulation/README.md) for our skeleton setup.
 - **AOSP Cuttlefish for framework-level bugs.** AOSP's reference cloud Android VM can run generic Android 14 for exercising APIs that don't depend on vendor HALs. Doesn't reflect HorizonOS behavior but catches framework-side bugs.
 - **Static analysis** — what this document does. Grep, binary diff, protobuf-parse, read.
 

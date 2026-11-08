@@ -6,7 +6,7 @@ Pick one; comment "I'll take this"; open a PR.
 
 - **[#6 — Add a new AI backend (Gemini / Mistral / Groq)](https://github.com/A-Hackers-Guide/QuestClassic/issues/6)** — one new file + one line in `AIRepository`. Ship-rateable in an evening.
 - **[#7 — Add a new diagnostic buzz pattern](https://github.com/A-Hackers-Guide/QuestClassic/issues/7)** — one `BuzzPattern` constant + table row + wire-up. Scope is tiny.
-- **[#8 — Add a new Build Tools widget](https://github.com/A-Hackers-Guide/QuestClassic/issues/8)** — any widget from the "to land" list in [docs/widget_sdk.md](../../docs/widget_sdk.md). Scope is tiny.
+- **[#8 — Add a new Build Tools widget](https://github.com/A-Hackers-Guide/QuestClassic/issues/8)** — any widget from the "to land" list in [the Build Tools user guide](../user-guide/build-tools.md). Scope is tiny.
 
 ## What makes a good first issue
 

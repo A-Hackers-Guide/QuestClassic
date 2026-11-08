@@ -32,7 +32,7 @@ All five Python tools ship in `tools/` of this repo, MIT-licensed. Use them agai
 
 ## What we did NOT do
 
-- Not published Meta firmware images or binaries to this repo. See the [README's "Legal / IP posture"](../../README.md#legal--ip-posture).
+- Not published Meta firmware images or binaries to this repo. See the [README's "Legal / IP posture"](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/README.md#legal--ip-posture).
 - Not developed working exploits.
 - Not decompiled every Meta APK — just the Meta-proprietary ones that were relevant to understanding the system (OSUpdater, DeviceAuthServer, IdentityManagement, VrShell, Guardian, …).
 - Not fuzzed live Meta firmware.

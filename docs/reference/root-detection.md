@@ -1,6 +1,6 @@
 # Root detection — the signals we check
 
-QuestClassic's root detection lives in [`core/RootDetector.kt`](../../app/src/main/kotlin/io/github/questclassic/app/core/RootDetector.kt). It inspects **five** signals on first query and memoises the result.
+QuestClassic's root detection lives in [`core/RootDetector.kt`](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/app/src/main/kotlin/io/github/questclassic/app/core/RootDetector.kt). It inspects **five** signals on first query and memoises the result.
 
 | Signal | What we look for | Value if hit |
 |---|---|---|
