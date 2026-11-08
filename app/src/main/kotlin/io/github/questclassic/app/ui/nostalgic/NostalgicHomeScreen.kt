@@ -19,10 +19,16 @@ import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.DeleteSweep
+import androidx.compose.material.icons.outlined.DownloadForOffline
+import androidx.compose.material.icons.outlined.Healing
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.Public
+import androidx.compose.material.icons.outlined.Rocket
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.outlined.ViewInAr
 import androidx.compose.material3.Text
@@ -39,12 +45,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import io.github.questclassic.app.core.AppContainer
 import io.github.questclassic.app.ui.panels.AIAssistantPanel
+import io.github.questclassic.app.ui.panels.ARSemicirclePanel
+import io.github.questclassic.app.ui.panels.BootAnimationPanel
 import io.github.questclassic.app.ui.panels.BuildToolsPanel
+import io.github.questclassic.app.ui.panels.DevSuperPanel
 import io.github.questclassic.app.ui.panels.DiagnosticsPanel
+import io.github.questclassic.app.ui.panels.FirmwareDumpPanel
+import io.github.questclassic.app.ui.panels.HomeMenuSwapperPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
+import io.github.questclassic.app.ui.panels.RestorePanel
 import io.github.questclassic.app.ui.panels.SettingsPanel
 import io.github.questclassic.app.ui.panels.SignatureVerifierPanel
+import io.github.questclassic.app.ui.panels.StripMetaPanel
 import io.github.questclassic.app.ui.panels.SystemInternalsPanel
 import io.github.questclassic.app.ui.panels.UpdatePanel
 import io.github.questclassic.app.ui.theme.QCColors
@@ -54,7 +67,10 @@ import io.github.questclassic.app.ui.theme.QCColors
  * a tile close affordance). Deliberately a flat navigation model so the UX feels snappy on the
  * head.
  */
-enum class HomeScreen { HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS, META_HOSTS }
+enum class HomeScreen {
+    HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS, META_HOSTS,
+    STRIP_META, FIRMWARE_DUMP, BOOT_ANIM, DEV_SUPER, HOME_SWAP, AR_SEMICIRCLE, RESTORE,
+}
 
 @Composable
 fun NostalgicHomeScreen(container: AppContainer) {
@@ -72,6 +88,13 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.SIG_VERIFY -> SignatureVerifierPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.INTERNALS -> SystemInternalsPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.META_HOSTS -> MetaHostsAuditPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.STRIP_META -> StripMetaPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.FIRMWARE_DUMP -> FirmwareDumpPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.BOOT_ANIM -> BootAnimationPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.DEV_SUPER -> DevSuperPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.HOME_SWAP -> HomeMenuSwapperPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.AR_SEMICIRCLE -> ARSemicirclePanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.RESTORE -> RestorePanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -125,6 +148,13 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.SIG_VERIFY, Icons.Outlined.Verified, "Signature Verifier", "Verify a Meta OTA .zip against its own cert, on-device."),
             HomeTile(HomeScreen.INTERNALS, Icons.Outlined.Policy, "System Internals", "Build host, vendor SPL gap, HorizonOS branch, SoC, all the quirks."),
             HomeTile(HomeScreen.META_HOSTS, Icons.Outlined.Public, "Meta Hosts Audit", "Resolve + ping every Meta host this build talks to."),
+            HomeTile(HomeScreen.STRIP_META, Icons.Outlined.DeleteSweep, "Strip Meta", "Dry-run plan for debloating. Root-gated for the destructive action."),
+            HomeTile(HomeScreen.FIRMWARE_DUMP, Icons.Outlined.DownloadForOffline, "Firmware Dump", "What's dumpable, what isn't, and why the keys stay put."),
+            HomeTile(HomeScreen.BOOT_ANIM, Icons.Outlined.Movie, "Boot Animation", "Swap the Meta splash for a nostalgia animation. Root-gated."),
+            HomeTile(HomeScreen.DEV_SUPER, Icons.Outlined.Rocket, "Dev Super-Mode", "Flip the switches Android normally hides. Root-gated."),
+            HomeTile(HomeScreen.HOME_SWAP, Icons.Outlined.Home, "Home Swapper", "Choose what launches when you take off standby. Root-gated."),
+            HomeTile(HomeScreen.AR_SEMICIRCLE, Icons.Outlined.ViewInAr, "AR Semicircle", "The 90° hand menu — flat preview + 2D fallback."),
+            HomeTile(HomeScreen.RESTORE, Icons.Outlined.Healing, "Restore", "The 30s 'anything wrong?' timer and escalation ladder."),
         )
     }
 }

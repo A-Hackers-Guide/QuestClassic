@@ -62,6 +62,13 @@ nav:
       - System Internals: user-guide/system-internals.md
       - Meta Hosts Audit: user-guide/meta-hosts-audit.md
       - AR Home: user-guide/ar-home.md
+      - AR Semicircle: user-guide/ar-semicircle.md
+      - Strip Meta: user-guide/strip-meta.md
+      - Firmware Dump: user-guide/firmware-dump.md
+      - Boot Animation: user-guide/boot-animation.md
+      - Dev Super-Mode: user-guide/dev-super.md
+      - Home Menu Swapper: user-guide/home-menu-swapper.md
+      - Functionality Restore: user-guide/restore.md
   - Architecture:
       - Overview: architecture/overview.md
       - Module map: architecture/module-map.md
@@ -94,6 +101,7 @@ nav:
       - Dependencies: security/dependencies.md
       - Signing: security/signing.md
       - Firmware review: security/firmware-review.md
+      - Emulation FAQ: security/emulation-faq.md
   - ADRs:
       - 0001 Record ADRs: adr/0001-record-architecture-decisions.md
       - 0002 Jetpack Compose: adr/0002-use-jetpack-compose.md
@@ -102,6 +110,8 @@ nav:
       - 0005 GitHub Releases: adr/0005-github-releases-as-update-channel.md
       - 0006 material-icons-extended: adr/0006-material-icons-extended.md
       - 0007 minSdk 29: adr/0007-min-sdk-29.md
+      - 0008 AR semicircle geometry: adr/0008-ar-semicircle-geometry.md
+      - 0009 Root gating philosophy: adr/0009-root-gating-philosophy.md
   - Reverse engineering:
       - Overview: reverse-engineering/overview.md
       - OTA format: reverse-engineering/ota-format.md

@@ -5,13 +5,25 @@ All notable changes to QuestClassic are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
-- Complete docs reorganization under `docs/` with 30+ Markdown files: `getting-started/`, `user-guide/`, `architecture/`, `reference/`, `contributing/`, `security/`, `adr/`, `reverse-engineering/`, `roadmap/`, plus a top-level FAQ.
-- `docs/security/firmware-review.md` — defensive audit of 18 findings observed in the Nov 2026 Quest 2 OTA (SPL gaps, info leaks, SELinux carve-outs, cert chain, crypto choices, attack surface). No exploit code.
-- `emulation/` skeleton explaining what's realistic and what's not for live-firmware vulnerability testing (`unidbg/`, `cuttlefish/`, feasibility README).
-- Seven ADRs (`docs/adr/0001` through `0007`) recording the decisions behind the current architecture.
+- `core/RootDetector.kt` — library-level root detection (su-on-PATH, Magisk paths, /system writable, test-keys build, userdebug).
+- `core/FunctionalityRestore.kt` — the 30s ask → attempt-fix → display → fallback → buzz ladder from the design brief.
+- Seven new panels: Strip Meta, Firmware Dump, Boot Animation, Dev Super-Mode, Home Menu Swapper, AR Semicircle, Functionality Restore.
+- `ui/nostalgic/RootGate.kt` — the verbose "this requires root" explainer card every gated panel uses.
+- 10 new Build Tools HUD widgets: IP address, uptime, battery, thermal zones, storage breakdown, SoC info, process count, root status, build host, SELinux mode.
+- Firmware review findings F-19 through F-30 added to `docs/security/firmware-review.md` (userdebug `ro.adb.secure=0` cross-build gap, VrShell overprivileged manifest, MLPerf harness in retail, orchestrator socket perms, QSEE 6.0 version pinning, fastboot in ABL).
+- ADR 0008 — AR semicircle uses 90° arc (ergonomics; detailed geometry).
+- ADR 0009 — Root gating philosophy: detect-don't-elevate, with legal rationale.
+- Seven user-guide pages for the new panels.
+- JUnit 4 test dependency; unit tests for `BuzzPattern.toTimings()` and the varint parser shape used by `PayloadVerifier`.
+
+### Previous docs expansion (merged in PR #13)
+- Complete docs reorganization under `docs/` with 30+ Markdown files.
+- `docs/security/firmware-review.md` — initial 18 findings.
+- `emulation/` skeleton explaining realistic vs. not-realistic for live-firmware vuln testing.
+- Seven ADRs (`docs/adr/0001` through `0007`).
 - Governance files: `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, `CODEOWNERS`, `CHANGELOG.md`.
-- YAML-form issue templates (`.github/ISSUE_TEMPLATE/*.yml`), PR template, issue template config.
-- `mkdocs.yml` for optional site rendering via mkdocs-material.
+- YAML-form issue templates, PR template, issue template config.
+- `mkdocs.yml` for optional mkdocs-material rendering.
 
 ### Changed
 - `docs/achievements.md` moved to `docs/contributing/achievements.md`.

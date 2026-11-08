@@ -26,4 +26,6 @@ class AppContainer(private val app: Context) {
     val ai: AIRepository = AIRepository(app, http)
     val payloadVerifier: PayloadVerifier = PayloadVerifier(app)
     val systemProbe: SystemPropertyProbe = SystemPropertyProbe()
+    val rootDetector: RootDetector = RootDetector(app)
+    val restore: FunctionalityRestore = FunctionalityRestore(app, haptics, diagnostics)
 }
