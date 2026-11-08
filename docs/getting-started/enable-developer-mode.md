@@ -8,7 +8,7 @@ Register (or join) a developer organization on Meta's dashboard, flip the toggle
 
 ## Steps
 
-1. On a PC or phone browser, open [developer.meta.com/manage](https://developer.meta.com/manage) and sign in with the same Meta account you use on the headset.
+1. On a PC or phone browser, open [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/) and sign in with the same Meta account you use on the headset. (The older `developer.meta.com/manage` and `developers.meta.com/manage` URLs 404 — Meta moved the dashboard under `/horizon/` in 2025.)
 2. If prompted, create a new organization. Pick any name — it's just an internal ID — and accept the developer terms.
 3. Open the **Meta Horizon** app (used to be "Oculus app") on your phone. The phone needs to be paired with the headset already.
 4. Tap **Menu → Devices → (your headset) → Headset Settings → Developer Mode**.
@@ -36,4 +36,4 @@ Turn it off in the same phone-app menu. Headset-side developer menu disappears a
 
 ---
 
-_Last reviewed against Meta Horizon mobile app v242 and the developer.meta.com dashboard, Nov 2026. Meta renames things — if the exact menu paths drift, the concept hasn't moved._
+_Last reviewed against Meta Horizon mobile app v242 and the developers.meta.com/horizon dashboard, Nov 2026. Meta renames things — if the exact menu paths drift, the concept hasn't moved._

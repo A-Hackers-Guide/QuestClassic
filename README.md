@@ -39,7 +39,7 @@ What we **can** do on stock is live comfortably alongside Meta's system, in exac
 
 ### From a release (end-user path)
 
-1. Enable Developer Mode on your Meta account at [developer.meta.com](https://developer.meta.com/manage/) — Meta's one-time "verify yourself" flow. No account unlock, no bootloader unlock — Meta's official developer flag.
+1. Enable Developer Mode on your Meta account at [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/) — Meta's one-time "verify yourself" flow. No account unlock, no bootloader unlock — Meta's official developer flag.
 2. Enable USB debugging on the headset: *Settings → System → Developer → USB Connection Dialog = on, ADB = on*.
 3. Plug the headset into your PC, allow USB debugging in the headset.
 4. Download the latest `QuestClassic-release.apk` from this repo's [Releases](../../releases).
