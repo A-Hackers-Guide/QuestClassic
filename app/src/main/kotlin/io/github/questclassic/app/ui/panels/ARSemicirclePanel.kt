@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import io.github.questclassic.app.core.AppContainer
@@ -142,8 +142,7 @@ fun ARSemicirclePanel(container: AppContainer, onClose: () -> Unit) {
                         slots.forEachIndexed { i, label ->
                             androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
                                 ChipLabel("S${i + 1}", QCColors.Amber)
-                                Spacer(Modifier.height(0.dp))
-                                androidx.compose.foundation.layout.Spacer(Modifier.padding(start = 8.dp))
+                                Spacer(Modifier.width(8.dp))
                                 Text(label, style = MaterialTheme.typography.bodyMedium, color = QCColors.Soft)
                             }
                             Spacer(Modifier.height(4.dp))

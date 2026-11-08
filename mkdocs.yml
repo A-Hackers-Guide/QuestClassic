@@ -81,6 +81,7 @@ nav:
       - Buzz patterns: reference/buzz-patterns.md
       - Permissions: reference/permissions.md
       - Manifest: reference/manifest.md
+      - Root detection: reference/root-detection.md
       - API — core: reference/api/core.md
       - API — ai: reference/api/ai.md
       - API — os: reference/api/os.md
