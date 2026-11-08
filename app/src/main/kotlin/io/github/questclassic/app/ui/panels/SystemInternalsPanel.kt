@@ -133,6 +133,128 @@ fun SystemInternalsPanel(container: AppContainer, onClose: () -> Unit) {
                     }
                 }
             }
+
+            // F-19 — fstab /data encryptable flag
+            item {
+                GlassPanel(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Text("F-19 · FSTAB /data FLAGS", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                        Spacer(Modifier.height(6.dp))
+                        val fstab = runCatching {
+                            java.io.File("/vendor/etc/fstab.qcom").takeIf { it.canRead() }?.readLines()
+                                ?.firstOrNull { !it.startsWith("#") && it.contains(" /data ") }
+                        }.getOrNull()
+                        if (fstab == null) {
+                            Text("fstab not readable on this device", style = MaterialTheme.typography.labelMedium, color = QCColors.Dim)
+                        } else {
+                            Text(fstab, style = MaterialTheme.typography.labelMedium, color = QCColors.Soft)
+                            Spacer(Modifier.height(4.dp))
+                            val hasLegacy = fstab.contains("encryptable=footer") || fstab.contains("forcefdeorfbe=")
+                            Text(
+                                if (hasLegacy) "⚠ Legacy FDE-era flag present. Modern AOSP uses FBE only. See firmware-review F-19."
+                                else "Modern FBE-only encryption.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (hasLegacy) QCColors.Amber else QCColors.Dim,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // F-24 — orchestrator socket permissions
+            item {
+                GlassPanel(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Text("F-24 · ORCHESTRATOR SOCKET", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                        Spacer(Modifier.height(6.dp))
+                        val probe = java.io.File("/data/misc/oculus/orchestrator.sock")
+                        when {
+                            !probe.exists() -> Text("socket not present at expected path", style = MaterialTheme.typography.labelMedium, color = QCColors.Dim)
+                            else -> {
+                                val readable = probe.canRead()
+                                val writable = probe.canWrite()
+                                StatRow("readable from app context", readable.toString(), ok = !readable)
+                                StatRow("writable from app context", writable.toString(), ok = !writable)
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    if (readable || writable)
+                                        "⚠ Socket is reachable from unprivileged app. Confirm against SELinux carve-outs. See F-24."
+                                    else "Socket not accessible from this app's SELinux domain — as expected.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (readable || writable) QCColors.Amber else QCColors.Dim,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // F-25 — vendor_dlkm presence
+            item {
+                GlassPanel(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Text("F-25 · VENDOR_DLKM PARTITION", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                        Spacer(Modifier.height(6.dp))
+                        val hasDlkm = java.io.File("/vendor_dlkm").exists()
+                        val hasVendorModules = java.io.File("/vendor/lib/modules").exists()
+                        StatRow("/vendor_dlkm mount", hasDlkm.toString(), ok = hasDlkm)
+                        StatRow("/vendor/lib/modules", hasVendorModules.toString(), ok = !hasVendorModules)
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            if (!hasDlkm && hasVendorModules)
+                                "Kernel modules out-of-tree in /vendor (legacy). Google recommends vendor_dlkm for AOSP 11+."
+                            else if (hasDlkm) "Modern vendor_dlkm layout."
+                            else "No kernel modules visible from this app context.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = QCColors.Dim,
+                        )
+                    }
+                }
+            }
+
+            // SELinux enforcement live read
+            item {
+                GlassPanel(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Text("SELINUX MODE", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                        Spacer(Modifier.height(6.dp))
+                        val mode = runCatching {
+                            java.io.File("/sys/fs/selinux/enforce").takeIf { it.canRead() }?.readText()?.trim()
+                        }.getOrNull()
+                        val label = when (mode) {
+                            "1" -> "enforcing"
+                            "0" -> "permissive"
+                            null -> "unavailable"
+                            else -> mode
+                        }
+                        StatRow("/sys/fs/selinux/enforce", label, ok = label == "enforcing")
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            if (label == "permissive") "⚠ SELinux is permissive. Retail should be enforcing."
+                            else "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = QCColors.Amber,
+                        )
+                    }
+                }
+            }
+
+            // Vendor fingerprint partition cross-check
+            item {
+                GlassPanel(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Text("PER-PARTITION FINGERPRINTS", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                        Spacer(Modifier.height(6.dp))
+                        val parts = listOf("system", "system_ext", "vendor", "product", "odm")
+                        parts.forEach { part ->
+                            val fp = probe.get("ro.$part.build.fingerprint")
+                                ?: probe.get("ro.vendor.build.fingerprint").takeIf { part == "vendor" }
+                                ?: "—"
+                            StatRow(part, fp)
+                        }
+                    }
+                }
+            }
         }
     }
 }
