@@ -18,19 +18,21 @@ It installs like any other APK (ADB sideload). It survives every Meta OTA becaus
 
 ## Hard constraints — read this before filing a feature request
 
-A sideloaded APK on a retail Meta Quest **cannot** do these things, and no amount of clever programming changes that. We've documented the full reasoning in the parent project's `REVERSE_ENGINEERING_REPORT.md` (sections 7, 9, 15, 18); the TL;DR table:
+A sideloaded APK on a **stock retail** Meta Quest cannot do these things from software alone. See the full reasoning in [`docs/security/firmware-review.md`](docs/security/firmware-review.md) and [`docs/security/emulation-faq.md`](docs/security/emulation-faq.md).
 
-| Thing | Why not |
-|---|---|
-| Replace the Meta boot animation | `vr_bootanim` is on a dm-verity-signed partition. |
-| Strip Meta apps from the system image | Same. The hashtree would fail verify. |
-| Intercept the boot‑time "three lines" menu | That's bootloader + recovery, both signed. We run after boot. |
-| Dump device signing keys | They live in Qualcomm TrustZone / Keybox, inaccessible from Android. |
-| Grant ourselves `com.oculus.horizon.auth` | Signature permission — needs Meta's platform key, which we don't have. |
-| Modify an installed Meta APK in place | Breaks the APK signature; Android refuses to run it. |
-| Install a kernel module / driver | AVB verifies every partition at boot. |
+| Thing | Stock | Rooted device | Why |
+|---|---|---|---|
+| Replace the Meta boot animation | No | **Yes — [Boot Animation panel](docs/user-guide/boot-animation.md)** | `/system/media/` is RO without root. |
+| Strip Meta apps from the system image | No | **Yes — [Strip Meta panel](docs/user-guide/strip-meta.md)** (dry-run on stock) | `pm uninstall --user 0` needs ADB root grant. |
+| Intercept the boot-time "three lines" menu | No | No | That's bootloader + recovery, both signed by keys in silicon fuses. |
+| Dump device signing keys | No | No | TrustZone / Keybox, hardware-protected. See the firmware dump panel for what IS dumpable. |
+| Grant ourselves a signature permission | No | No | Meta's platform key doesn't exist anywhere extractable. |
+| Modify an installed Meta APK in place | No | No | Breaks the APK signature; Android refuses to run it. |
+| Install a kernel module / driver | No | No | AVB verifies every partition at boot. |
 
-What we **can** do is live comfortably alongside Meta's system, in exactly the sandbox any user‑installed app gets on this device. That's what the panels above do.
+**On "rooted device":** QuestClassic does not include a Quest 2 root exploit, and will not. The "Yes" entries above are for devices where root was enabled by other means (userdebug ROM, signed vendor image, Magisk install on an old-firmware bootloader-unlocked device). See [ADR 0009 — Root gating philosophy](docs/adr/0009-root-gating-philosophy.md).
+
+What we **can** do on stock is live comfortably alongside Meta's system, in exactly the sandbox any user-installed app gets. That's what the panels above do.
 
 ## Install
 
