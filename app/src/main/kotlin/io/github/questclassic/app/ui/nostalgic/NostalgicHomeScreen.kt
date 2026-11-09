@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.Healing
 import androidx.compose.material.icons.outlined.SportsEsports
@@ -56,6 +57,7 @@ import io.github.questclassic.app.ui.panels.FirmwareDumpPanel
 import io.github.questclassic.app.ui.panels.HomeMenuSwapperPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
+import io.github.questclassic.app.ui.panels.DevicesPanel
 import io.github.questclassic.app.ui.panels.EmulatorPanel
 import io.github.questclassic.app.ui.panels.RestorePanel
 import io.github.questclassic.app.ui.panels.VirtualMonitorPanel
@@ -76,6 +78,7 @@ enum class HomeScreen {
     STRIP_META, FIRMWARE_DUMP, BOOT_ANIM, DEV_SUPER, HOME_SWAP, AR_SEMICIRCLE, RESTORE,
     VIRTUAL_MONITORS,
     EMULATORS,
+    DEVICES,
 }
 
 @Composable
@@ -103,6 +106,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.RESTORE -> RestorePanel(container) { screen = HomeScreen.HOME }
             HomeScreen.VIRTUAL_MONITORS -> VirtualMonitorPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.EMULATORS -> EmulatorPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.DEVICES -> DevicesPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -165,6 +169,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.RESTORE, Icons.Outlined.Healing, "Restore", "The 30s 'anything wrong?' timer and escalation ladder."),
             HomeTile(HomeScreen.VIRTUAL_MONITORS, Icons.Outlined.DesktopWindows, "Virtual Monitors", "Pair a desktop and stream virtual monitors to it."),
             HomeTile(HomeScreen.EMULATORS, Icons.Outlined.SportsEsports, "Emulators", "Detect + launch RetroArch cores and standalones."),
+            HomeTile(HomeScreen.DEVICES, Icons.Outlined.Devices, "Devices", "Pair + manage companions, Ollama servers, bridges."),
         )
     }
 }
