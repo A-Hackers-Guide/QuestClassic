@@ -119,6 +119,12 @@ nav:
       - 0007 minSdk 29: adr/0007-min-sdk-29.md
       - 0008 AR semicircle geometry: adr/0008-ar-semicircle-geometry.md
       - 0009 Root gating philosophy: adr/0009-root-gating-philosophy.md
+      - 0010 Multi-provider AI wake names: adr/0010-multi-provider-ai-wake-names.md
+      - 0011 Chat history per backend: adr/0011-chat-history-per-backend.md
+      - 0012 Companion as subfolder: adr/0012-companion-as-subfolder.md
+      - 0013 Emulator detect-and-launch: adr/0013-emulator-detect-and-launch.md
+      - 0014 Device Registry metadata-only: adr/0014-device-registry-metadata-only.md
+      - 0015 Voice training state machine: adr/0015-voice-training-state-machine.md
   - Reverse engineering:
       - Overview: reverse-engineering/overview.md
       - OTA format: reverse-engineering/ota-format.md
