@@ -37,4 +37,11 @@ class AppContainer(private val app: Context) {
     val configBackup: ConfigBackupController = ConfigBackupController(app)
     val passthrough: PassthroughController = PassthroughController(app)
     val voices: VoiceRegistry = VoiceRegistry(app)
+
+    init {
+        // Register the built-in tool catalog so the AI assistant can call
+        // common tools (device.info, ai.whoami, voices.list, …) out of the
+        // box. Idempotent: AgentToolSeed.seedAll() resets the registry first.
+        io.github.questclassic.app.ai.AgentToolSeed.seedAll(this, app)
+    }
 }
