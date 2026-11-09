@@ -125,6 +125,10 @@ nav:
       - 0013 Emulator detect-and-launch: adr/0013-emulator-detect-and-launch.md
       - 0014 Device Registry metadata-only: adr/0014-device-registry-metadata-only.md
       - 0015 Voice training state machine: adr/0015-voice-training-state-machine.md
+      - 0016 Wake-word router as pure fn: adr/0016-wake-word-router-pure-fn.md
+      - 0017 Config backup excludes keys: adr/0017-config-backup-excludes-keys.md
+      - 0018 First-run linear pipeline: adr/0018-first-run-linear-pipeline.md
+      - 0019 Agent tool safety tiers: adr/0019-agent-tool-safety-tiers.md
   - Reverse engineering:
       - Overview: reverse-engineering/overview.md
       - OTA format: reverse-engineering/ota-format.md
