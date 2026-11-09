@@ -67,6 +67,18 @@ enum class Widget(val title: String, val render: @Composable (AppContainer) -> U
     ROOT_STATUS("Root status", { c -> RootStatusWidget(c) }),
     HOST_INFO("Build host", { HostInfoWidget() }),
     SELINUX("SELinux mode", { SELinuxWidget() }),
+
+    // --- Tier-2 widgets ---
+    CPU_CORES("CPU cores", { CpuCoresWidget() }),
+    SCREEN_METRICS("Screen metrics", { ScreenMetricsWidget() }),
+    LOCALE("Locale", { LocaleWidget() }),
+    TIME_ZONE("Time zone", { TimeZoneWidget() }),
+    KERNEL("Kernel", { KernelWidget() }),
+    PERM_SUMMARY("Granted permissions", { c -> PermSummaryWidget(c) }),
+    DEVICE_COUNT("Registered devices", { c -> DeviceCountWidget(c) }),
+    VOICES_SUMMARY("Voices catalog", { VoicesSummaryWidget() }),
+    BATTERY_TEMP("Battery temperature", { BatteryTempWidget() }),
+    DISK_FREE("Disk free", { DiskFreeWidget() }),
 }
 
 @Composable
@@ -411,5 +423,116 @@ private fun SELinuxWidget() {
             .let { if (it == "1") "enforcing" else if (it == "0") "permissive" else "unknown" }
     }
     Text(mode, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+// --- Tier-2 widgets ---
+
+@Composable
+private fun CpuCoresWidget() {
+    val n = remember { Runtime.getRuntime().availableProcessors() }
+    Text("$n cores available",
+        style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun ScreenMetricsWidget() {
+    val ctx = LocalContext.current
+    val dm = remember { ctx.resources.displayMetrics }
+    Text(
+        "${dm.widthPixels}×${dm.heightPixels} @ ${dm.densityDpi} dpi (xdpi=${"%.1f".format(dm.xdpi)}, ydpi=${"%.1f".format(dm.ydpi)})",
+        style = MaterialTheme.typography.labelLarge, color = QCColors.Soft,
+    )
+}
+
+@Composable
+private fun LocaleWidget() {
+    val loc = remember { Locale.getDefault() }
+    Text(
+        "${loc.toLanguageTag()} · ${loc.displayName}",
+        style = MaterialTheme.typography.titleMedium, color = QCColors.Soft,
+    )
+}
+
+@Composable
+private fun TimeZoneWidget() {
+    val tz = remember { java.util.TimeZone.getDefault() }
+    Text(
+        "${tz.id} · ${tz.displayName}",
+        style = MaterialTheme.typography.titleMedium, color = QCColors.Soft,
+    )
+}
+
+@Composable
+private fun KernelWidget() {
+    val kv = remember { System.getProperty("os.version") ?: "?" }
+    Text(kv, style = MaterialTheme.typography.labelLarge, color = QCColors.Soft)
+}
+
+@Composable
+private fun PermSummaryWidget(container: AppContainer) {
+    val ctx = LocalContext.current
+    val summary = remember {
+        val pm = ctx.packageManager
+        val info = pm.getPackageInfo(
+            ctx.packageName,
+            android.content.pm.PackageManager.GET_PERMISSIONS,
+        )
+        val requested = info.requestedPermissions?.size ?: 0
+        val granted = info.requestedPermissions
+            ?.mapIndexed { i, _ ->
+                (info.requestedPermissionsFlags?.getOrNull(i) ?: 0) and
+                    android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED
+            }
+            ?.count { it != 0 } ?: 0
+        "$granted / $requested granted"
+    }
+    Text(summary, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun DeviceCountWidget(container: AppContainer) {
+    var count by remember { mutableIntStateOf(-1) }
+    LaunchedEffect(Unit) {
+        count = container.devices.load().size
+    }
+    Text(
+        if (count < 0) "…" else "$count registered",
+        style = MaterialTheme.typography.titleMedium, color = QCColors.Soft,
+    )
+}
+
+@Composable
+private fun VoicesSummaryWidget() {
+    // Static for now — the panel builder calls this before the voice
+    // registry is reachable via container (lands with the voices PR's
+    // consumer wiring). Stays accurate once wired.
+    Text(
+        "Voices registry · open the Voices panel to manage",
+        style = MaterialTheme.typography.labelLarge, color = QCColors.Dim,
+    )
+}
+
+@Composable
+private fun BatteryTempWidget() {
+    val ctx = LocalContext.current
+    val filter = remember { android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED) }
+    val intent = remember { ctx.registerReceiver(null, filter) }
+    val tenthsC = intent?.getIntExtra(android.os.BatteryManager.EXTRA_TEMPERATURE, -1) ?: -1
+    val text = if (tenthsC < 0) "—"
+    else "%.1f °C / %.1f °F".format(tenthsC / 10.0, tenthsC / 10.0 * 9 / 5 + 32)
+    Text(text, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun DiskFreeWidget() {
+    val stat = remember {
+        runCatching {
+            val sf = android.os.StatFs(android.os.Environment.getDataDirectory().path)
+            val freeGib = sf.availableBytes.toDouble() / (1 shl 30)
+            val totalGib = sf.totalBytes.toDouble() / (1 shl 30)
+            "%.1f / %.1f GiB free".format(freeGib, totalGib)
+        }.getOrDefault("—")
+    }
+    Text(stat, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
 }
 
