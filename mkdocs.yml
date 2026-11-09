@@ -129,6 +129,10 @@ nav:
       - 0017 Config backup excludes keys: adr/0017-config-backup-excludes-keys.md
       - 0018 First-run linear pipeline: adr/0018-first-run-linear-pipeline.md
       - 0019 Agent tool safety tiers: adr/0019-agent-tool-safety-tiers.md
+      - 0020 Secret redactor as backstop: adr/0020-secret-redactor-as-backstop.md
+      - 0021 Virtual monitor realistic ceilings: adr/0021-virtual-monitor-realistic-ceilings.md
+      - 0022 Prompt injection flag not filter: adr/0022-prompt-injection-flag-not-filter.md
+      - 0023 Token bucket per backend limiter: adr/0023-token-bucket-per-backend-limiter.md
   - Reverse engineering:
       - Overview: reverse-engineering/overview.md
       - OTA format: reverse-engineering/ota-format.md
