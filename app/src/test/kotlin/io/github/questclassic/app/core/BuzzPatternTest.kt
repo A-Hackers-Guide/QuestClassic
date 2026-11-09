@@ -50,12 +50,7 @@ class BuzzPatternTest {
 
     @Test
     fun `every documented pattern survives toTimings()`() {
-        val all = listOf(
-            BuzzPattern.OK, BuzzPattern.BATTERY_LOW, BuzzPattern.STORAGE_FULL,
-            BuzzPattern.WIFI_DOWN, BuzzPattern.OTA_CHECK_FAIL, BuzzPattern.CONTROLLER_MISSING,
-            BuzzPattern.THERMAL, BuzzPattern.DISPLAY_FAULT,
-        )
-        for (p in all) {
+        for (p in BuzzPattern.ALL) {
             val t = p.toTimings()
             assertNotNull("${p.label} produces timings", t)
             assertTrue("${p.label} is nonempty", t.isNotEmpty())
@@ -65,21 +60,29 @@ class BuzzPatternTest {
 
     @Test
     fun `patterns have unique labels`() {
-        val labels = listOf(
-            BuzzPattern.OK, BuzzPattern.BATTERY_LOW, BuzzPattern.STORAGE_FULL,
-            BuzzPattern.WIFI_DOWN, BuzzPattern.OTA_CHECK_FAIL, BuzzPattern.CONTROLLER_MISSING,
-            BuzzPattern.THERMAL, BuzzPattern.DISPLAY_FAULT,
-        ).map { it.label }
+        val labels = BuzzPattern.ALL.map { it.label }
         assertEquals("no duplicates", labels.size, labels.toSet().size)
     }
 
     @Test
     fun `patterns have unique dot-dash codes`() {
-        val codes = listOf(
-            BuzzPattern.OK, BuzzPattern.BATTERY_LOW, BuzzPattern.STORAGE_FULL,
-            BuzzPattern.WIFI_DOWN, BuzzPattern.OTA_CHECK_FAIL, BuzzPattern.CONTROLLER_MISSING,
-            BuzzPattern.THERMAL, BuzzPattern.DISPLAY_FAULT,
-        ).map { it.codeLetters }
+        val codes = BuzzPattern.ALL.map { it.codeLetters }
         assertEquals("no duplicate buzz codes", codes.size, codes.toSet().size)
+    }
+
+    @Test
+    fun `new Tier-2 patterns produce sensible timings`() {
+        // Spot-check a few of the new patterns.
+        val overheat = BuzzPattern.OVERHEAT.toTimings()
+        val codes = overheat.drop(3)
+        assertEquals("OVERHEAT is '---' — three dashes",
+            3, codes.count { it == 240L })
+
+        val tracking = BuzzPattern.TRACKING_LOST.toTimings()
+        val tCodes = tracking.drop(3)
+        assertEquals("TRACKING_LOST has three dots",
+            3, tCodes.count { it == 80L })
+        assertEquals("TRACKING_LOST has one dash",
+            1, tCodes.count { it == 240L })
     }
 }

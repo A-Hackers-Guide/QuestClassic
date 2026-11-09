@@ -80,5 +80,23 @@ data class BuzzPattern(val codeLetters: String, val label: String) {
         val CONTROLLER_MISSING = BuzzPattern("-..-", "controller tracking lost")
         val THERMAL = BuzzPattern("--", "thermal throttling")
         val DISPLAY_FAULT = BuzzPattern("...-", "display fault")
+
+        // --- Tier-2 additions ---
+        val TRACKING_LOST = BuzzPattern(".-..", "6DoF tracking lost")
+        val AUDIO_FAULT = BuzzPattern("-.--", "audio output failed")
+        val UPDATE_READY = BuzzPattern("..-", "update ready to install")
+        val GUARDIAN_LOST = BuzzPattern("-...", "guardian boundary cleared")
+        val OVERHEAT = BuzzPattern("---", "critical overheating — stop")
+        val ROOT_DETECTED = BuzzPattern(".--.", "root signals present")
+        val PASSTHROUGH_ON = BuzzPattern(".-.", "passthrough enabled")
+        val PASSTHROUGH_OFF = BuzzPattern("..--", "passthrough disabled")
+
+        /** Convenience: every known pattern, for the docs page and the demo picker. */
+        val ALL: List<BuzzPattern> = listOf(
+            OK, BATTERY_LOW, STORAGE_FULL, WIFI_DOWN, OTA_CHECK_FAIL,
+            CONTROLLER_MISSING, THERMAL, DISPLAY_FAULT,
+            TRACKING_LOST, AUDIO_FAULT, UPDATE_READY, GUARDIAN_LOST,
+            OVERHEAT, ROOT_DETECTED, PASSTHROUGH_ON, PASSTHROUGH_OFF,
+        )
     }
 }
