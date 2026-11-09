@@ -203,6 +203,88 @@ object EmulatorRegistry {
             packageName = "com.swordfish.lemuroid",
             homepage = "https://github.com/libretro/Lemuroid",
         ),
+
+        // --- Additional RetroArch targets (one package, many cores) ---
+        EmulatorTarget(
+            id = "retroarch.atari2600",
+            system = "Atari 2600",
+            displayName = "RetroArch (Stella core)",
+            packageName = "com.retroarch",
+            preferredCore = "stella_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.arcade",
+            system = "Arcade (MAME 2003 Plus)",
+            displayName = "RetroArch (MAME 2003 Plus core)",
+            packageName = "com.retroarch",
+            preferredCore = "mame2003_plus_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.sega_saturn",
+            system = "Sega Saturn",
+            displayName = "RetroArch (Beetle Saturn core)",
+            packageName = "com.retroarch",
+            preferredCore = "mednafen_saturn_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.sega_dreamcast",
+            system = "Sega Dreamcast",
+            displayName = "RetroArch (Flycast core)",
+            packageName = "com.retroarch",
+            preferredCore = "flycast_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.gb_color",
+            system = "Game Boy / Color",
+            displayName = "RetroArch (Gambatte core)",
+            packageName = "com.retroarch",
+            preferredCore = "gambatte_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.gba",
+            system = "Game Boy Advance",
+            displayName = "RetroArch (mGBA core)",
+            packageName = "com.retroarch",
+            preferredCore = "mgba_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.ds",
+            system = "Nintendo DS",
+            displayName = "RetroArch (melonDS core)",
+            packageName = "com.retroarch",
+            preferredCore = "melonds_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+        EmulatorTarget(
+            id = "retroarch.apple2",
+            system = "Apple II",
+            displayName = "RetroArch (Mame Apple II core)",
+            packageName = "com.retroarch",
+            preferredCore = "lr_mame_apple2_libretro_android.so",
+            homepage = "https://www.retroarch.com/",
+        ),
+
+        // --- Additional standalone targets ---
+        EmulatorTarget(
+            id = "standalone.aethersx2",
+            system = "Sony PlayStation 2 (standalone, read-only; mirror of last public build)",
+            displayName = "AetherSX2 (standalone; discontinued)",
+            packageName = "xyz.aethersx2.android",
+            homepage = "https://aethersx2.github.io/",
+        ),
+        EmulatorTarget(
+            id = "standalone.redream",
+            system = "Sega Dreamcast (standalone)",
+            displayName = "Redream (standalone)",
+            packageName = "io.recompiled.redream",
+            homepage = "https://redream.io/",
+        ),
     )
 
     /** Returns `true` iff the emulator's package is installed on this device. */
