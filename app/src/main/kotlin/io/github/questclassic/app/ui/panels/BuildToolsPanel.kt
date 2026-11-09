@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -70,10 +71,27 @@ enum class Widget(val title: String, val render: @Composable (AppContainer) -> U
 
 @Composable
 fun BuildToolsPanel(container: AppContainer, onClose: () -> Unit) {
-    val enabled = remember { mutableStateListOf<Widget>().apply { addAll(Widget.entries.take(2)) } }
+    val ctx = LocalContext.current
+    val prefs = remember { BuildToolsPrefs(ctx) }
+    val enabled = remember { mutableStateListOf<Widget>() }
+
+    // On first composition, restore the user's saved widget layout; default
+    // to the first two widgets if nothing is saved yet.
+    LaunchedEffect(Unit) {
+        val saved = prefs.loadEnabled()
+        enabled.clear()
+        enabled.addAll(saved ?: Widget.entries.take(2))
+    }
+
+    // Any mutation to `enabled` writes back to DataStore. snapshotFlow turns
+    // the SnapshotStateList into a cold Flow we can collect once.
+    LaunchedEffect(Unit) {
+        snapshotFlow { enabled.toList() }
+            .collect { prefs.saveEnabled(it) }
+    }
 
     Column(Modifier.fillMaxSize()) {
-        PanelClose(title = "Build Tools", subtitle = "${enabled.size}/${Widget.entries.size} widgets active", onClose = onClose)
+        PanelClose(title = "Build Tools", subtitle = "${enabled.size}/${Widget.entries.size} widgets active · saved", onClose = onClose)
         Spacer(Modifier.height(16.dp))
 
         GlassPanel(modifier = Modifier.fillMaxWidth()) {
@@ -209,10 +227,9 @@ private fun QuickNoteWidget() {
 
 @Composable
 private fun HapticTestWidget(container: AppContainer) {
-    val patterns = listOf(
-        BuzzPattern.OK, BuzzPattern.BATTERY_LOW, BuzzPattern.STORAGE_FULL,
-        BuzzPattern.WIFI_DOWN, BuzzPattern.OTA_CHECK_FAIL, BuzzPattern.THERMAL,
-    )
+    // All known patterns — new ones added to BuzzPattern.ALL show up here
+    // automatically.
+    val patterns = BuzzPattern.ALL
     Column {
         Text("Tap a pattern to feel it on the controllers.", style = MaterialTheme.typography.bodyMedium, color = QCColors.Dim)
         Spacer(Modifier.height(6.dp))

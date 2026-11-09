@@ -121,4 +121,80 @@ private fun buildStripPlan(): List<StripEntry> = listOf(
     StripEntry("com.oculus.focus", "Focus for productivity suite", StripVerb.REMOVE,
         "Entertainment app. Safe to remove.",
         "pm uninstall --user 0 com.oculus.focus"),
+
+    // --- Social / party / messaging ---
+    StripEntry("com.oculus.parties", "Parties (voice channels)", StripVerb.REMOVE,
+        "Only useful if you're on Meta's social graph. Removing gains quiet.",
+        "pm uninstall --user 0 com.oculus.parties"),
+    StripEntry("com.oculus.messenger", "Oculus Messenger", StripVerb.REMOVE,
+        "Separate messaging surface. Safe without the social stack.",
+        "pm uninstall --user 0 com.oculus.messenger"),
+    StripEntry("com.facebook.arvr.quillplayer", "Quill Player", StripVerb.REMOVE,
+        "Quill VR-painting viewer. Remove unless you actively use it.",
+        "pm uninstall --user 0 com.facebook.arvr.quillplayer"),
+
+    // --- Telemetry / analytics surfaces ---
+    StripEntry("com.oculus.insights", "Meta Insights analytics", StripVerb.REMOVE,
+        "App-usage telemetry. No user-visible feature.",
+        "pm uninstall --user 0 com.oculus.insights"),
+    StripEntry("com.oculus.vrshellenv", "VrShell environment telemetry", StripVerb.DISABLE,
+        "Not strictly removable without launcher side-effects; disabling blocks its uploads.",
+        "pm disable-user --user 0 com.oculus.vrshellenv"),
+    StripEntry("com.oculus.mobile_mrc_setup", "Mixed Reality Capture setup", StripVerb.REMOVE,
+        "Casting-setup helper used once during pairing. Removes cleanly after that.",
+        "pm uninstall --user 0 com.oculus.mobile_mrc_setup"),
+
+    // --- Casting + screen mirroring ---
+    StripEntry("com.oculus.casting", "Meta Casting server", StripVerb.DISABLE,
+        "Leaves casting receiver ready on the LAN. Disable if you don't cast.",
+        "pm disable-user --user 0 com.oculus.casting"),
+    StripEntry("com.oculus.vrguardianservice", "Guardian / boundary service", StripVerb.LEAVE,
+        "Removing breaks the tracking boundary. Leave in place.",
+        "echo 'LEAVE - breaks the boundary; do not disable'"),
+
+    // --- Keyboards + input ---
+    StripEntry("com.oculus.keyboard", "Oculus system keyboard", StripVerb.LEAVE,
+        "Removing leaves you with no keyboard at all. Leave in place.",
+        "echo 'LEAVE - no replacement ships on retail builds'"),
+    StripEntry("com.oculus.mrservice", "Mixed Reality service", StripVerb.DISABLE,
+        "Passthrough plumbing. Disable only if you don't use passthrough apps.",
+        "pm disable-user --user 0 com.oculus.mrservice"),
+
+    // --- Camera / passthrough analytics ---
+    StripEntry("com.oculus.spatial_capture", "Spatial Capture (first-person recording)", StripVerb.REMOVE,
+        "Records VR sessions for sharing. Safe to remove unless you record.",
+        "pm uninstall --user 0 com.oculus.spatial_capture"),
+    StripEntry("com.oculus.cameraservice", "Camera service (passthrough frames)", StripVerb.LEAVE,
+        "Passthrough and guardian depend on this. Leave in place.",
+        "echo 'LEAVE - breaks passthrough'"),
+
+    // --- Meta sync + account ---
+    StripEntry("com.oculus.horizon_updater", "Horizon self-updater", StripVerb.REMOVE,
+        "Updates Horizon in the background. Removing stops the bg traffic.",
+        "pm uninstall --user 0 com.oculus.horizon_updater"),
+    StripEntry("com.oculus.integrityservice", "Integrity / attestation service", StripVerb.DISABLE,
+        "Attests the headset to Meta for quest + store. Only disable if going offline.",
+        "pm disable-user --user 0 com.oculus.integrityservice"),
+    StripEntry("com.oculus.ovrmobileplatformsvc", "Meta Platform SDK service", StripVerb.DISABLE,
+        "Entitlement / IAP checks for Meta Store apps. Breaks IAP if disabled.",
+        "pm disable-user --user 0 com.oculus.ovrmobileplatformsvc"),
+
+    // --- Experimental / stats ---
+    StripEntry("com.oculus.sysutil", "System utility (stats + logs)", StripVerb.DISABLE,
+        "Logging daemon. Disable to quiet background work.",
+        "pm disable-user --user 0 com.oculus.sysutil"),
+    StripEntry("com.oculus.brush", "Oculus Brush (demo)", StripVerb.REMOVE,
+        "Early-days brush demo. Remove.",
+        "pm uninstall --user 0 com.oculus.brush"),
+    StripEntry("com.oculus.horizonmobile", "Horizon mobile companion bridge", StripVerb.REMOVE,
+        "Used when pairing with the Horizon phone app. Remove if you pair rarely.",
+        "pm uninstall --user 0 com.oculus.horizonmobile"),
+
+    // --- Facebook residuals ---
+    StripEntry("com.facebook.arvr.oneheadsettwohands", "Facebook Spaces residual", StripVerb.REMOVE,
+        "Early Spaces leftover. Remove.",
+        "pm uninstall --user 0 com.facebook.arvr.oneheadsettwohands"),
+    StripEntry("com.facebook.arvr.mobile_rift", "Mobile Rift / early VR", StripVerb.REMOVE,
+        "Historical leftover. Remove.",
+        "pm uninstall --user 0 com.facebook.arvr.mobile_rift"),
 )
