@@ -30,4 +30,5 @@ class AppContainer(private val app: Context) {
     val systemProbe: SystemPropertyProbe = SystemPropertyProbe()
     val rootDetector: RootDetector = RootDetector(app)
     val restore: FunctionalityRestore = FunctionalityRestore(app, haptics, diagnostics)
+    val devices: DeviceRegistry = DeviceRegistry(app)
 }
