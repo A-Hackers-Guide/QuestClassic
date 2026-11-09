@@ -34,6 +34,7 @@ class AppContainer(private val app: Context) {
     val rootDetector: RootDetector = RootDetector(app)
     val restore: FunctionalityRestore = FunctionalityRestore(app, haptics, diagnostics)
     val devices: DeviceRegistry = DeviceRegistry(app)
+    val configBackup: ConfigBackupController = ConfigBackupController(app)
     val passthrough: PassthroughController = PassthroughController(app)
     val voices: VoiceRegistry = VoiceRegistry(app)
 }
