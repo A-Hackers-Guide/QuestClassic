@@ -64,7 +64,7 @@ class PassthroughController(private val context: Context) {
      * [effectiveCameraOn] agrees.
      */
     fun cameraPassthroughSupported(rootDetector: RootDetector): Boolean =
-        rootDetector.isRooted()
+        rootDetector.status().isRooted
 
     /**
      * The *effective* state — what the compositor will actually do when
