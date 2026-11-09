@@ -86,6 +86,20 @@ All notable changes to QuestClassic are documented here. Format follows [Keep a 
 - **9 more buzz patterns** covering AI, companion pairing, emulator launch, config export/restore.
 - **10 more detect-and-launch emulator targets** (Atari 2600, MAME, Saturn, Dreamcast, GB/C, GBA, DS, Apple II, AetherSX2, Redream) — 22 → 32 total.
 - **ADRs 0016-0023** capturing the designs of each of the above as pure-function / state-machine / policy decisions.
+- **AssistantToneProfile** (`ai/AssistantToneProfile.kt`). 5 tones (TERSE, CASUAL, FORMAL, VERBOSE, SCRIPT_KIDDIE); prepends a directive to the user's system prompt rather than replacing it.
+- **HistoryCompactor** (`ai/HistoryCompactor.kt`). Compacts long chat histories into summary + recent-20 via an injectable summarize callback. Never drops context silently (null/empty summary = no-op).
+- **ApiKeyValidator** (`ai/ApiKeyValidator.kt`). Three-value Ok/Warn/Error verdict for Claude / OpenAI / Gemini / Ollama key shapes — catches "pasted the Bearer header" and "wrong-provider key" at the settings form instead of after the first 401.
+- **ClipboardPolicy** (`core/ClipboardPolicy.kt`). Single choke point for Copy buttons; SECRET refused, ORDINARY/DEBUG redacted.
+- **TokenBudgetEstimator** (`ai/TokenBudgetEstimator.kt`). Rough char→token estimate so the UI chip can show "~3,200 tokens (budget: 200,000)" without shipping a tokenizer.
+- **UpdateChannel** (`update/UpdateChannel.kt`). STABLE / BETA / EDGE picker with a semver-ish comparator (prerelease loses to release of the same base).
+- **DraftStore** (`ai/DraftStore.kt`). Per-backend unsent-input draft that survives restart.
+- **OfflineQueue** (`ai/OfflineQueue.kt`). In-memory FIFO for AI requests when the network drops; drain-on-reconnect; injectable clock.
+- **BackendModelCatalog** (`ai/BackendModelCatalog.kt`). 13 known models across Claude / OpenAI / Gemini / Ollama with context sizes; settings form still accepts hand-typed ids.
+- **BuzzSequence** (`core/BuzzSequence.kt`). 5 composite multi-pattern buzz chains for boot chime, battery escalation, AI handed-off, config shipped, security event.
+- **12 more Strip Meta packages** (33 → 45): media player, first-run, file transfer, movie player, notifications (DISABLE), gallery, browser beta, tutorials, Live TV, party room, Horizon scripting, system driver (LEAVE).
+- **GitHub templates** (`.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md`, `config.yml`). Risk-and-rollback + Policy-ADR-links sections in the PR template; DiagnosticsBundle pointer in the bug template; private-advisory link in the config.
+- **4 more user-guide pages**: setup-wizard, voices, virtual-monitor, companion.
+- **ADRs 0024-0029** capturing: mDNS backend-free, tone directive, compactor safety, slash enum registry, clipboard choke-point, key validator shape-not-auth.
 
 ## [0.2.0] - 2026-11-08
 
