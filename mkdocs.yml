@@ -137,6 +137,8 @@ nav:
       - 0025 Tone profile as directive: adr/0025-tone-profile-as-directive-not-replacement.md
       - 0026 History compactor never drops: adr/0026-history-compactor-never-drops.md
       - 0027 Slash commands as enum registry: adr/0027-slash-commands-registry.md
+      - 0028 Clipboard policy central choke: adr/0028-clipboard-policy-central-choke-point.md
+      - 0029 API key validator shape not auth: adr/0029-api-key-validator-shape-not-auth.md
   - User guide extras:
       - Setup wizard: user-guide/setup-wizard.md
       - Voices: user-guide/voices.md
