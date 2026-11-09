@@ -38,6 +38,7 @@ class AppContainer(private val app: Context) {
     val passthrough: PassthroughController = PassthroughController(app)
     val voices: VoiceRegistry = VoiceRegistry(app)
     val firstRun: FirstRunController = FirstRunController(app)
+    val drafts: io.github.questclassic.app.ai.DraftStore = io.github.questclassic.app.ai.DraftStore(app)
 
     init {
         // Register the built-in tool catalog so the AI assistant can call
