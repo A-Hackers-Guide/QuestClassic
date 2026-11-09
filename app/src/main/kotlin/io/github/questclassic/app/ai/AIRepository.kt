@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 
@@ -54,6 +56,7 @@ class AIRepository(private val context: Context, http: OkHttpClient) {
         backends.firstOrNull { it.id == id } ?: backends.first()
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val mapSerializer = MapSerializer(String.serializer(), String.serializer())
 
     private val NAME = stringPreferencesKey("name")
     private val BACKEND = stringPreferencesKey("backend")
@@ -66,10 +69,10 @@ class AIRepository(private val context: Context, http: OkHttpClient) {
     suspend fun load(): AIConfig {
         val prefs = context.aiStore.data.map { it }.first()
         val names = prefs[PER_BACKEND_NAMES]
-            ?.let { runCatching { json.decodeFromString<Map<String, String>>(it) }.getOrNull() }
+            ?.let { runCatching { json.decodeFromString(mapSerializer, it) }.getOrNull() }
             .orEmpty()
         val keys = prefs[PER_BACKEND_KEYS]
-            ?.let { runCatching { json.decodeFromString<Map<String, String>>(it) }.getOrNull() }
+            ?.let { runCatching { json.decodeFromString(mapSerializer, it) }.getOrNull() }
             .orEmpty()
         val activeBackend = prefs[BACKEND].orEmpty().ifBlank { "claude" }
         val activeName = prefs[NAME].orEmpty().ifBlank { names[activeBackend] ?: "Classic" }
@@ -100,8 +103,8 @@ class AIRepository(private val context: Context, http: OkHttpClient) {
             prefs[MODEL] = cfg.model
             prefs[KEY] = cfg.apiKey
             prefs[PROMPT] = cfg.systemPrompt
-            prefs[PER_BACKEND_NAMES] = json.encodeToString(updatedNames)
-            prefs[PER_BACKEND_KEYS] = json.encodeToString(updatedKeys)
+            prefs[PER_BACKEND_NAMES] = json.encodeToString(mapSerializer, updatedNames)
+            prefs[PER_BACKEND_KEYS] = json.encodeToString(mapSerializer, updatedKeys)
         }
     }
 }
