@@ -1,25 +1,40 @@
-<!-- Fill each section. Thanks! -->
+<!--
+Thanks for contributing. Keep this template short — reviewers look at the
+code; this is where WHY lives.
+-->
 
-## What
+## What this PR does
 
-<!-- One or two sentences. -->
+<!-- One or two sentences. Explain in terms of user behaviour where possible
+     ('AI panel can now resume a conversation across restart'); fall back
+     to component behaviour where not ('AIRepository persists per-backend
+     wake names'). -->
 
 ## Why
 
-<!-- Motivation, or the issue it closes. `Closes #N`. -->
+<!-- The problem the change solves, or the user ask that motivated it.
+     If this is the first follow-up on a thread, link the root cause /
+     the earlier PR; if it's a response to a review comment, link that. -->
 
-## How
+## How this PR is tested
 
-<!-- Approach if non-obvious. Can be short. -->
+- [ ] Unit tests (what do they cover?)
+- [ ] CI build passed on this branch
+- [ ] Manual run on a real headset (describe what you did and what you saw)
+- [ ] N/A — docs or workflow only
 
-## Test plan
+## Risk + rollback
 
-<!-- What you did to verify. Device, Cuttlefish, Compose preview, etc. -->
+<!-- What's the risk of this landing? For a pure-function + test PR this
+     is often 'zero'. For a DataStore schema change: describe the
+     migration path. For a change that touches the AI backend wire
+     format: describe how a new version talks to an old build.
 
----
+     If someone needs to revert this, is that a simple git revert, or
+     is there state to clean up? -->
 
-- [ ] I ran `./gradlew :app:assembleDebug` locally and it succeeded.
-- [ ] I tested the change on a headset or Cuttlefish instance.
-- [ ] I updated docs if the change is user-visible or changes a public API.
-- [ ] I added a `Co-Authored-By` trailer if this was pair-programmed.
-- [ ] I'm okay with squash-merging.
+## Policy / ADR links
+
+<!-- When the PR encodes a policy decision (which keys travel, which
+     tools auto-run, what shape names are accepted), link the ADR.
+     Policy claims in a PR body get out of date; ADRs are versioned. -->
