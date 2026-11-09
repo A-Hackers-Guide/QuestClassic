@@ -91,12 +91,26 @@ data class BuzzPattern(val codeLetters: String, val label: String) {
         val PASSTHROUGH_ON = BuzzPattern(".-.", "passthrough enabled")
         val PASSTHROUGH_OFF = BuzzPattern("..--", "passthrough disabled")
 
+        // --- Tier-3 additions ---
+        val AI_WAKE = BuzzPattern(".--", "AI assistant woke / is listening")
+        val AI_ANSWERED = BuzzPattern("--.", "AI finished answering")
+        val VOICE_RECORDING = BuzzPattern(".-.-", "voice clone sample recording")
+        val VOICE_TRAINING_DONE = BuzzPattern("-..--", "voice clone training complete")
+        val COMPANION_PAIRED = BuzzPattern("...--", "desktop companion paired")
+        val COMPANION_LOST = BuzzPattern("---..", "desktop companion lost")
+        val EMULATOR_LAUNCHED = BuzzPattern(".----", "emulator launched")
+        val CONFIG_EXPORTED = BuzzPattern(".-...", "config exported")
+        val CONFIG_RESTORED = BuzzPattern("-....-", "config restored — re-enter API keys")
+
         /** Convenience: every known pattern, for the docs page and the demo picker. */
         val ALL: List<BuzzPattern> = listOf(
             OK, BATTERY_LOW, STORAGE_FULL, WIFI_DOWN, OTA_CHECK_FAIL,
             CONTROLLER_MISSING, THERMAL, DISPLAY_FAULT,
             TRACKING_LOST, AUDIO_FAULT, UPDATE_READY, GUARDIAN_LOST,
             OVERHEAT, ROOT_DETECTED, PASSTHROUGH_ON, PASSTHROUGH_OFF,
+            AI_WAKE, AI_ANSWERED, VOICE_RECORDING, VOICE_TRAINING_DONE,
+            COMPANION_PAIRED, COMPANION_LOST, EMULATOR_LAUNCHED,
+            CONFIG_EXPORTED, CONFIG_RESTORED,
         )
     }
 }
