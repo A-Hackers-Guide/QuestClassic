@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.Healing
+import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MonitorHeart
@@ -73,6 +74,7 @@ enum class HomeScreen {
     HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS, META_HOSTS,
     STRIP_META, FIRMWARE_DUMP, BOOT_ANIM, DEV_SUPER, HOME_SWAP, AR_SEMICIRCLE, RESTORE,
     VIRTUAL_MONITORS,
+    EMULATORS,
 }
 
 @Composable
@@ -99,6 +101,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.AR_SEMICIRCLE -> ARSemicirclePanel(container) { screen = HomeScreen.HOME }
             HomeScreen.RESTORE -> RestorePanel(container) { screen = HomeScreen.HOME }
             HomeScreen.VIRTUAL_MONITORS -> VirtualMonitorPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.EMULATORS -> EmulatorPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -160,6 +163,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.AR_SEMICIRCLE, Icons.Outlined.ViewInAr, "AR Semicircle", "The 90° hand menu — flat preview + 2D fallback."),
             HomeTile(HomeScreen.RESTORE, Icons.Outlined.Healing, "Restore", "The 30s 'anything wrong?' timer and escalation ladder."),
             HomeTile(HomeScreen.VIRTUAL_MONITORS, Icons.Outlined.DesktopWindows, "Virtual Monitors", "Pair a desktop and stream virtual monitors to it."),
+            HomeTile(HomeScreen.EMULATORS, Icons.Outlined.SportsEsports, "Emulators", "Detect + launch RetroArch cores and standalones."),
         )
     }
 }
