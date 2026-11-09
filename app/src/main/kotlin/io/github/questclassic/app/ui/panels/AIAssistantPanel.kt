@@ -58,7 +58,9 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         PanelClose(
             title = "AI Companion",
-            subtitle = cfg?.assistantName?.let { "$it · ${container.ai.backendById(cfg!!.backendId).displayName}" } ?: "…",
+            subtitle = cfg?.assistantName?.let {
+                "Hey $it · ${container.ai.backendById(cfg!!.backendId).displayName}"
+            } ?: "…",
             onClose = onClose,
         )
         Spacer(Modifier.height(12.dp))
@@ -159,45 +161,109 @@ private fun AIConfigForm(
     backends: List<Pair<String, String>>,
     onSave: (AIConfig) -> Unit,
 ) {
-    var name by remember { mutableStateOf(initial.assistantName) }
     var backend by remember { mutableStateOf(initial.backendId) }
+    var name by remember { mutableStateOf(initial.assistantName) }
     var model by remember { mutableStateOf(initial.model) }
     var key by remember { mutableStateOf(initial.apiKey) }
     var prompt by remember { mutableStateOf(initial.systemPrompt) }
+    var perBackendNames by remember { mutableStateOf(initial.perBackendNames) }
+    var perBackendKeys by remember { mutableStateOf(initial.perBackendKeys) }
     var backendMenu by remember { mutableStateOf(false) }
+
+    // When the user switches backend, stash the previous name + key under
+    // the OLD backend id, then restore the saved name + key for the NEW one.
+    fun switchBackend(newId: String) {
+        if (newId == backend) { backendMenu = false; return }
+        perBackendNames = perBackendNames.toMutableMap().apply { put(backend, name) }
+        perBackendKeys = perBackendKeys.toMutableMap().apply { put(backend, key) }
+        backend = newId
+        name = perBackendNames[newId] ?: defaultWakeNameFor(newId)
+        key = perBackendKeys[newId].orEmpty()
+        backendMenu = false
+    }
 
     GlassPanel(modifier = Modifier.fillMaxWidth()) {
         Column {
             Text("ASSISTANT SETUP", style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
             Spacer(Modifier.height(10.dp))
-            AIField("Name", name) { name = it }
-            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = { backendMenu = true },
                 colors = ButtonDefaults.buttonColors(containerColor = QCColors.Edge, contentColor = QCColors.Soft),
-            ) { Text("Backend: ${backends.firstOrNull { it.first == backend }?.second ?: backend}") }
+            ) { Text("Provider: ${backends.firstOrNull { it.first == backend }?.second ?: backend}") }
             DropdownMenu(expanded = backendMenu, onDismissRequest = { backendMenu = false }) {
                 backends.forEach { (id, label) ->
-                    DropdownMenuItem(text = { Text(label) }, onClick = { backend = id; backendMenu = false })
+                    DropdownMenuItem(text = { Text(label) }, onClick = { switchBackend(id) })
                 }
             }
             Spacer(Modifier.height(8.dp))
-            AIField("Model (optional)", model, placeholder = "e.g. claude-sonnet-5-5, gpt-4o-mini, llama3.2") { model = it }
+            AIField(
+                label = "Wake name — say \"Hey ${name.ifBlank { "<name>" }} …\"",
+                value = name,
+            ) { name = it }
             Spacer(Modifier.height(8.dp))
             AIField(
-                label = if (backend == "ollama") "Ollama base URL" else "API key",
+                label = "Model (optional)",
+                value = model,
+                placeholder = modelPlaceholderFor(backend),
+            ) { model = it }
+            Spacer(Modifier.height(8.dp))
+            AIField(
+                label = keyLabelFor(backend),
                 value = key,
-                placeholder = if (backend == "ollama") "http://10.0.0.1:11434" else "sk-…",
+                placeholder = keyPlaceholderFor(backend),
             ) { key = it }
             Spacer(Modifier.height(8.dp))
             AIField("System prompt (your assistant's personality)", prompt, maxLines = 5) { prompt = it }
             Spacer(Modifier.height(14.dp))
             Button(
-                onClick = { onSave(AIConfig(name.ifBlank { "Classic" }, backend, model, key, prompt)) },
+                onClick = {
+                    onSave(
+                        AIConfig(
+                            assistantName = name.ifBlank { defaultWakeNameFor(backend) },
+                            backendId = backend,
+                            model = model,
+                            apiKey = key,
+                            systemPrompt = prompt,
+                            perBackendNames = perBackendNames,
+                            perBackendKeys = perBackendKeys,
+                        )
+                    )
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = QCColors.Teal, contentColor = QCColors.Space),
             ) { Text("Save") }
         }
     }
+}
+
+/** Default wake names when the user hasn't set one yet. */
+private fun defaultWakeNameFor(backendId: String): String = when (backendId) {
+    "claude" -> "Classic"
+    "openai" -> "Sage"
+    "gemini" -> "Nova"
+    "ollama" -> "Local"
+    else -> "Classic"
+}
+
+private fun keyLabelFor(backendId: String): String = when (backendId) {
+    "ollama" -> "Ollama base URL"
+    "gemini" -> "Google API key"
+    else -> "API key"
+}
+
+private fun keyPlaceholderFor(backendId: String): String = when (backendId) {
+    "ollama" -> "http://10.0.0.1:11434"
+    "openai" -> "sk-…"
+    "claude" -> "sk-ant-…"
+    "gemini" -> "AIza…"
+    else -> ""
+}
+
+private fun modelPlaceholderFor(backendId: String): String = when (backendId) {
+    "claude" -> "e.g. claude-sonnet-5-5"
+    "openai" -> "e.g. gpt-4o-mini"
+    "gemini" -> "e.g. gemini-2.0-flash"
+    "ollama" -> "e.g. llama3.2"
+    else -> ""
 }
 
 @Composable
