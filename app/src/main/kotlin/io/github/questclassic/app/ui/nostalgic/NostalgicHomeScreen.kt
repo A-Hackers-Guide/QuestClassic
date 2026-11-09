@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.material.icons.outlined.DownloadForOffline
@@ -59,6 +60,7 @@ import io.github.questclassic.app.ui.panels.HomeMenuSwapperPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
 import io.github.questclassic.app.ui.panels.DevicesPanel
+import io.github.questclassic.app.ui.panels.PassthroughPanel
 import io.github.questclassic.app.ui.panels.EmulatorPanel
 import io.github.questclassic.app.ui.panels.VoicesPanel
 import io.github.questclassic.app.ui.panels.RestorePanel
@@ -82,6 +84,7 @@ enum class HomeScreen {
     EMULATORS,
     DEVICES,
     VOICES,
+    PASSTHROUGH,
 }
 
 @Composable
@@ -111,6 +114,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.EMULATORS -> EmulatorPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.DEVICES -> DevicesPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.VOICES -> VoicesPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.PASSTHROUGH -> PassthroughPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -175,6 +179,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.EMULATORS, Icons.Outlined.SportsEsports, "Emulators", "Detect + launch RetroArch cores and standalones."),
             HomeTile(HomeScreen.DEVICES, Icons.Outlined.Devices, "Devices", "Pair + manage companions, Ollama servers, bridges."),
             HomeTile(HomeScreen.VOICES, Icons.Outlined.RecordVoiceOver, "Voices", "Manage built-in TTS + clone your own."),
+            HomeTile(HomeScreen.PASSTHROUGH, Icons.Outlined.CameraAlt, "Passthrough", "Camera / audio / text passthrough toggles."),
         )
     }
 }
