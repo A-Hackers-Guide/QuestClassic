@@ -45,7 +45,10 @@ data class DiagnosticsBundle(
             val voices = container.voices.load()
             val passthrough = container.passthrough.load()
             val rootStatus = container.rootDetector.status()
-            val firstRun = container.firstRun.load()
+            // FirstRunController is constructed inline rather than read off
+            // container.firstRun so this module doesn't require that wire-in
+            // to be in place first. Idempotent; it just reads DataStore.
+            val firstRun = FirstRunController(context).load()
 
             return DiagnosticsBundle(
                 createdAt = System.currentTimeMillis(),
