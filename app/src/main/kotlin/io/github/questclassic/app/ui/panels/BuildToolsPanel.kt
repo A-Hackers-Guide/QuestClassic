@@ -79,6 +79,16 @@ enum class Widget(val title: String, val render: @Composable (AppContainer) -> U
     VOICES_SUMMARY("Voices catalog", { VoicesSummaryWidget() }),
     BATTERY_TEMP("Battery temperature", { BatteryTempWidget() }),
     DISK_FREE("Disk free", { DiskFreeWidget() }),
+
+    // --- Tier-3 widgets ---
+    JVM_HEAP("JVM heap", { JvmHeapWidget() }),
+    SECURITY_PATCH("Security patch", { SecurityPatchWidget() }),
+    ABI_LIST("Supported ABIs", { AbiListWidget() }),
+    BOARD("Board", { BoardWidget() }),
+    BOOT_TIME("Boot time", { BootTimeWidget() }),
+    SENSOR_COUNT("Sensor count", { SensorCountWidget() }),
+    DISPLAY_REFRESH("Display refresh", { DisplayRefreshWidget() }),
+    GL_VERSION("GL es version", { GlEsVersionWidget() }),
 }
 
 @Composable
@@ -534,5 +544,90 @@ private fun DiskFreeWidget() {
         }.getOrDefault("—")
     }
     Text(stat, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+// --- Tier-3 widgets ---
+
+@Composable
+private fun JvmHeapWidget() {
+    val rt = remember { Runtime.getRuntime() }
+    val stat = remember {
+        val used = (rt.totalMemory() - rt.freeMemory()).toDouble() / (1 shl 20)
+        val max = rt.maxMemory().toDouble() / (1 shl 20)
+        "%.0f / %.0f MiB used".format(used, max)
+    }
+    Text(stat, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun SecurityPatchWidget() {
+    val patch = remember { android.os.Build.VERSION.SECURITY_PATCH.ifBlank { "—" } }
+    Text("patch · $patch", style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun AbiListWidget() {
+    val abis = remember { android.os.Build.SUPPORTED_ABIS.joinToString(", ").ifBlank { "—" } }
+    Text(abis, style = MaterialTheme.typography.labelLarge, color = QCColors.Soft)
+}
+
+@Composable
+private fun BoardWidget() {
+    val line = remember {
+        "${android.os.Build.MANUFACTURER} / ${android.os.Build.BOARD} / ${android.os.Build.HARDWARE}"
+    }
+    Text(line, style = MaterialTheme.typography.labelLarge, color = QCColors.Soft)
+}
+
+@Composable
+private fun BootTimeWidget() {
+    val when_ = remember {
+        val now = System.currentTimeMillis()
+        val uptime = android.os.SystemClock.elapsedRealtime()
+        val bootMillis = now - uptime
+        SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(bootMillis))
+    }
+    Text("booted $when_", style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun SensorCountWidget() {
+    val ctx = LocalContext.current
+    val count = remember {
+        runCatching {
+            val sm = ctx.getSystemService(Context.SENSOR_SERVICE) as? android.hardware.SensorManager
+            sm?.getSensorList(android.hardware.Sensor.TYPE_ALL)?.size ?: -1
+        }.getOrDefault(-1)
+    }
+    Text(
+        if (count < 0) "—" else "$count sensors",
+        style = MaterialTheme.typography.titleMedium, color = QCColors.Soft,
+    )
+}
+
+@Composable
+private fun DisplayRefreshWidget() {
+    val ctx = LocalContext.current
+    val hz = remember {
+        runCatching {
+            val wm = ctx.getSystemService(Context.WINDOW_SERVICE) as? android.view.WindowManager
+            @Suppress("DEPRECATION")
+            wm?.defaultDisplay?.refreshRate ?: Float.NaN
+        }.getOrDefault(Float.NaN)
+    }
+    val txt = if (hz.isNaN()) "—" else "%.1f Hz".format(hz)
+    Text(txt, style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
+}
+
+@Composable
+private fun GlEsVersionWidget() {
+    val ctx = LocalContext.current
+    val ver = remember {
+        runCatching {
+            val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            am?.deviceConfigurationInfo?.glEsVersion ?: "—"
+        }.getOrDefault("—")
+    }
+    Text("OpenGL ES $ver", style = MaterialTheme.typography.titleMedium, color = QCColors.Soft)
 }
 
