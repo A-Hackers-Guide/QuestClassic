@@ -164,7 +164,7 @@ object AgentToolSeed {
                         payload = buildJsonObject {
                             put("count", list.size)
                             put("names", kotlinx.serialization.json.JsonArray(
-                                list.map { JsonPrimitive(it.name) }
+                                list.map { JsonPrimitive(it.displayName) }
                             ))
                         },
                     )
@@ -188,7 +188,7 @@ object AgentToolSeed {
                         payload = buildJsonObject {
                             put("count", list.size)
                             put("names", kotlinx.serialization.json.JsonArray(
-                                list.map { JsonPrimitive(it.name) }
+                                list.map { JsonPrimitive(it.displayName) }
                             ))
                         },
                     )
