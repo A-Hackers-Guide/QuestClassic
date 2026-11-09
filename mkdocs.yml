@@ -137,6 +137,11 @@ nav:
       - 0025 Tone profile as directive: adr/0025-tone-profile-as-directive-not-replacement.md
       - 0026 History compactor never drops: adr/0026-history-compactor-never-drops.md
       - 0027 Slash commands as enum registry: adr/0027-slash-commands-registry.md
+  - User guide extras:
+      - Setup wizard: user-guide/setup-wizard.md
+      - Voices: user-guide/voices.md
+      - Virtual monitor: user-guide/virtual-monitor.md
+      - Companion (desktop): user-guide/companion.md
   - Reverse engineering:
       - Overview: reverse-engineering/overview.md
       - OTA format: reverse-engineering/ota-format.md

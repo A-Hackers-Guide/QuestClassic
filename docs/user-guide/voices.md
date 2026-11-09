@@ -1,75 +1,33 @@
 # Voices
 
-User-manageable catalog of TTS voices the AI companion can speak as. Two kinds:
+The Voices panel is the registry of TTS voices available to the AI companion.
 
-- **Built-in** — from the Android platform TTS engine (`TextToSpeech.getVoices()`). No training; you pick locale + engine + voice name.
-- **Cloned** — your own voice, trained from recorded samples. Synthesised on-device only — samples never leave the headset.
+## Two kinds of voice
 
-## Clone training state machine
+**Built-in voices** come from the device's TTS engine (Android's `TextToSpeech`). You don't manage these directly in QuestClassic — they come from whatever TTS engines are installed on the headset (Google TTS, Samsung TTS, etc.). The panel enumerates them and lets you toggle individual ones on or off so the AI only picks from the ones you like.
 
-```
-QUEUED ─► RECORDING ─► TRAINING ─► READY
-   │          │             │
-   └──► FAILED ──► QUEUED (retry)
-```
-
-Legal transitions (enforced by `VoiceRegistry.canTransition`):
-
-| From | Allowed to |
-|---|---|
-| `QUEUED` | `RECORDING` · `FAILED` |
-| `RECORDING` | `TRAINING` · `FAILED` |
-| `TRAINING` | `READY` · `FAILED` |
-| `READY` | `READY` |
-| `FAILED` | `QUEUED` |
-
-The clone pipeline (future PR) calls `canTransition(from, to)` before `advanceTraining(id, to)` so bogus moves like "already READY, drop to TRAINING" are rejected with a clear message instead of silently corrupting state.
-
-## Limits
-
-- **32-voice cap.** `startClone` above cap throws; `registerBuiltIn` upserts within the cap.
-- **Samples stay on-device.** `samplePath` points under app-private storage (`/data/data/io.github.questclassic.app/files/voices/…`).
-
-## CRUD
-
-```kotlin
-val voices = container.voices
-
-suspend fun examples() {
-    // Platform voice
-    voices.registerBuiltIn(Voice(
-        id = "en-us-sarah",
-        displayName = "Sarah",
-        kind = VoiceKind.BUILT_IN,
-        engine = "com.google.android.tts",
-        voiceName = "en-us-x-sfg#female_1-local",
-    ))
-
-    // Start cloning
-    val v = voices.startClone(id = "me", displayName = "My voice")
-    // Pipeline records samples, trains, advances:
-    voices.advanceTraining("me", TrainingState.RECORDING)
-    voices.advanceTraining("me", TrainingState.TRAINING)
-    voices.advanceTraining("me", TrainingState.READY)
-
-    voices.toggleEnabled("me", enabled = false)   // user hides without deleting
-    voices.rename("me", "Me (studio take)")
-    voices.remove("me")
-}
-```
-
-## Privacy posture
-
-- Cloned voice samples live under app-private storage. Nothing writes them off-device.
-- Platform TTS engines may call home (e.g. Google TTS downloads voices). We disclose this on the setup form and recommend the local TTS engine from F-Droid if you want strict offline.
-- Cloned voice synthesis runs on-device via the clone pipeline (future PR) using a small on-device model. No cloud voice service is used.
-
-## Where state lives
-
-`DataStore (Preferences)` at:
+**Cloned voices** are voices you train in-app from a short sample of your (or a willing volunteer's) speech. A clone goes through a staged training pipeline:
 
 ```
-/data/data/io.github.questclassic.app/datastore/voice_registry.preferences_pb
+QUEUED → RECORDING → TRAINING → READY
+   ↓          ↓          ↓
+   └────── FAILED ──────┘
+              ↓
+         QUEUED (retry)
 ```
 
-One row `voices` with the JSON-encoded list.
+Each step persists so a training job survives an app restart.
+
+## Clone-training capacity
+
+- **32-voice cap** on the clones list. Hit it and the panel refuses new entries until you delete a slot — the panel surfaces this as a message, not a silent failure.
+- Each clone's training artifacts live in app-private storage. They **do not** travel in the config backup JSON (training data is device-specific and often multi-megabyte).
+
+## Addressing the voice from the AI
+
+Each AI backend has a "preferred voice" setting. On every assistant response, the backend's preferred voice is played if it exists and is enabled; otherwise the first enabled voice is used as a fallback. Set it in the backend's settings card, not here.
+
+## Related decisions
+
+- [ADR 0015 — Voice training as a state machine](../adr/0015-voice-training-state-machine.md) — why invalid transitions are rejected rather than silently repaired.
+- [ADR 0019 — Agent tool safety tiers](../adr/0019-agent-tool-safety-tiers.md) — the `voices.list` tool the AI can call (READ_ONLY) to tell you what's available.
