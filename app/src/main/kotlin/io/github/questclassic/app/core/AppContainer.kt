@@ -3,6 +3,7 @@ package io.github.questclassic.app.core
 import android.content.Context
 import io.github.questclassic.app.ai.AIRepository
 import io.github.questclassic.app.ai.ChatHistoryStore
+import io.github.questclassic.app.ai.VoiceRegistry
 import io.github.questclassic.app.os.DeviceIntrospection
 import io.github.questclassic.app.os.SystemPropertyProbe
 import io.github.questclassic.app.update.SelfUpdater
@@ -32,4 +33,5 @@ class AppContainer(private val app: Context) {
     val restore: FunctionalityRestore = FunctionalityRestore(app, haptics, diagnostics)
     val devices: DeviceRegistry = DeviceRegistry(app)
     val passthrough: PassthroughController = PassthroughController(app)
+    val voices: VoiceRegistry = VoiceRegistry(app)
 }
