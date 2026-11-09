@@ -1,8 +1,17 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Security vulnerability
+    url: https://github.com/A-Hackers-Guide/QuestClassic/security/advisories/new
+    about: Report a security issue privately via GitHub Security Advisories. Do NOT open a public issue.
+  - name: Meta firmware security bug
+    url: https://bugbounty.meta.com/
+    about: If you found a bug in Meta's firmware itself (not QuestClassic), send it to Meta's bug-bounty program.
+  - name: Troubleshooting
+    url: https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/getting-started/troubleshooting.md
+    about: Common issues and fixes. Try this first.
+  - name: FAQ
+    url: https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/faq.md
+    about: Frequently asked questions.
   - name: Documentation
     url: https://a-hackers-guide.github.io/QuestClassic/
-    about: The user guide and ADRs — your first stop for 'how does X work?'.
-  - name: Security (private)
-    url: https://github.com/A-Hackers-Guide/QuestClassic/security/advisories/new
-    about: If this is a vulnerability, please open a private security advisory instead of a public issue.
+    about: User guide + ADRs.

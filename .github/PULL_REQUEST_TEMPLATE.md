@@ -1,27 +1,25 @@
-<!--
-Thanks for contributing. Keep this template short — reviewers look at the
-code; this is where WHY lives.
--->
+<!-- Fill each section. Thanks! -->
 
-## What this PR does
+## What
 
-<!-- One or two sentences. Explain in terms of user behaviour where possible
-     ('AI panel can now resume a conversation across restart'); fall back
-     to component behaviour where not ('AIRepository persists per-backend
-     wake names'). -->
+<!-- One or two sentences. Explain in terms of user behaviour where
+     possible ('AI panel can now resume a conversation across restart');
+     fall back to component behaviour where not ('AIRepository persists
+     per-backend wake names'). -->
 
 ## Why
 
-<!-- The problem the change solves, or the user ask that motivated it.
-     If this is the first follow-up on a thread, link the root cause /
-     the earlier PR; if it's a response to a review comment, link that. -->
+<!-- Motivation, or the issue it closes. `Closes #N`. The problem the
+     change solves, or the user ask that motivated it. If this is the
+     first follow-up on a thread, link the root cause / the earlier PR. -->
 
-## How this PR is tested
+## How
 
-- [ ] Unit tests (what do they cover?)
-- [ ] CI build passed on this branch
-- [ ] Manual run on a real headset (describe what you did and what you saw)
-- [ ] N/A — docs or workflow only
+<!-- Approach if non-obvious. Can be short. -->
+
+## Test plan
+
+<!-- What you did to verify. Device, Cuttlefish, Compose preview, etc. -->
 
 ## Risk + rollback
 
@@ -38,3 +36,11 @@ code; this is where WHY lives.
 <!-- When the PR encodes a policy decision (which keys travel, which
      tools auto-run, what shape names are accepted), link the ADR.
      Policy claims in a PR body get out of date; ADRs are versioned. -->
+
+---
+
+- [ ] I ran `./gradlew :app:assembleDebug` locally and it succeeded.
+- [ ] I tested the change on a headset or Cuttlefish instance.
+- [ ] I updated docs if the change is user-visible or changes a public API.
+- [ ] I added a `Co-Authored-By` trailer if this was pair-programmed.
+- [ ] I'm okay with squash-merging.
