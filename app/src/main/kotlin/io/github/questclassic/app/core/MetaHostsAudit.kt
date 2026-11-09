@@ -14,7 +14,7 @@ import java.net.InetAddress
  * to be reaching anyway.
  */
 object MetaHostsAudit {
-    enum class Category { AUTH, GRAPH, GENAI, PAYMENTS, CDN, INTERNAL }
+    enum class Category { AUTH, GRAPH, GENAI, PAYMENTS, CDN, INTERNAL, TELEMETRY, OTA }
 
     data class Host(val name: String, val category: Category, val note: String = "")
 
@@ -53,6 +53,29 @@ object MetaHostsAudit {
         Host("graph.intern.facebook.com", Category.INTERNAL, "Internal FB graph — expected: unreachable"),
         Host("m.intern.facebook.com", Category.INTERNAL, "Internal FB mobile — expected: unreachable"),
         Host("our.intern.facebook.com", Category.INTERNAL, "Internal FB portal — expected: unreachable"),
+
+        // Telemetry / logging / crash reporting (opt-out candidates)
+        Host("falco.facebook.com", Category.TELEMETRY, "FB logger backend (Scuba/Falco pipeline)"),
+        Host("edge-chat.facebook.com", Category.TELEMETRY, "MQTT event channel"),
+        Host("mqtt-mini.facebook.com", Category.TELEMETRY, "FB MQTT (mini-protocol)"),
+        Host("crashlytics-oculus.facebook.com", Category.TELEMETRY, "Oculus crash reports"),
+        Host("stats.g.doubleclick.net", Category.TELEMETRY, "DoubleClick analytics tag"),
+
+        // OTA / config / feature flags / certificates
+        Host("ota.oculus.com", Category.OTA, "Oculus OTA endpoint"),
+        Host("oculuscdn.com", Category.OTA, "Oculus package mirror"),
+        Host("config.facebook.com", Category.OTA, "Server-pushed feature flag payload"),
+        Host("mobile.config.facebook.com", Category.OTA, "Mobile feature-flag mutation"),
+        Host("fbpkg.oculus.com", Category.OTA, "Internal package format mirror"),
+        Host("device-provisioning.oculus.com", Category.OTA, "First-boot provisioning"),
+
+        // GenAI – the newer wave
+        Host("llama-graph.facebook.com", Category.GENAI, "LLaMA-backed GraphQL"),
+        Host("ai-chat.facebook.com", Category.GENAI, "AI chat REST endpoint"),
+
+        // Hardware auth (device attestation)
+        Host("hera.oculus.com", Category.AUTH, "Hardware attestation service"),
+        Host("certs.oculus.com", Category.AUTH, "Oculus device cert chain host"),
     )
 
     data class Probe(val host: Host, val ip: String?, val reachable: Boolean, val latencyMs: Long?, val error: String?)

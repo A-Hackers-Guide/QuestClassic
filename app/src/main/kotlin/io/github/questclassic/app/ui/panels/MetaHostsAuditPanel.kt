@@ -82,6 +82,8 @@ fun MetaHostsAuditPanel(container: AppContainer, onClose: () -> Unit) {
                             MetaHostsAudit.Category.PAYMENTS -> QCColors.OK
                             MetaHostsAudit.Category.CDN -> QCColors.Dim
                             MetaHostsAudit.Category.INTERNAL -> QCColors.Warn
+                            MetaHostsAudit.Category.TELEMETRY -> QCColors.Warn
+                            MetaHostsAudit.Category.OTA -> QCColors.OK
                         },
                     ) {
                         Column {
