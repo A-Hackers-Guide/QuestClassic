@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,12 +48,28 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
     val history = remember { mutableStateListOf<ChatMessage>() }
     var draft by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
+    var panelPrefs by remember { mutableStateOf(io.github.questclassic.app.ai.AIPanelPrefsSnapshot()) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         val c = container.ai.load()
         cfg = c
         if (c.apiKey.isBlank() && c.backendId != "ollama") configuring = true
+        panelPrefs = container.aiPanelPrefs.load()
+        // Restore conversation for the active backend.
+        val saved = container.chatHistory.load(c.backendId)
+        if (saved.isNotEmpty()) {
+            history.clear()
+            history.addAll(saved)
+        }
+    }
+
+    // Save history after every mutation so a crash doesn't lose the thread.
+    LaunchedEffect(Unit) {
+        snapshotFlow { history.toList() }.collect { snap ->
+            val id = cfg?.backendId ?: return@collect
+            container.chatHistory.save(id, snap)
+        }
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -87,31 +104,77 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
             ) { Text("Configure") }
             Spacer(Modifier.padding(horizontal = 4.dp))
             Button(
-                onClick = { history.clear() },
+                onClick = {
+                    history.clear()
+                    cfg?.backendId?.let { id ->
+                        scope.launch { container.chatHistory.clear(id) }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = QCColors.Edge, contentColor = QCColors.Soft),
             ) { Text("Clear") }
+            Spacer(Modifier.padding(horizontal = 4.dp))
+            Button(
+                onClick = {
+                    val next = panelPrefs.copy(voiceEnabled = !panelPrefs.voiceEnabled)
+                    panelPrefs = next
+                    scope.launch { container.aiPanelPrefs.save(next) }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (panelPrefs.voiceEnabled) QCColors.Teal else QCColors.Edge,
+                    contentColor = if (panelPrefs.voiceEnabled) QCColors.Space else QCColors.Soft,
+                ),
+            ) { Text(if (panelPrefs.voiceEnabled) "Voice: on" else "Voice: off") }
+            Spacer(Modifier.padding(horizontal = 4.dp))
+            Button(
+                onClick = {
+                    val next = panelPrefs.copy(textEnabled = !panelPrefs.textEnabled)
+                    panelPrefs = next
+                    scope.launch { container.aiPanelPrefs.save(next) }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (panelPrefs.textEnabled) QCColors.Teal else QCColors.Edge,
+                    contentColor = if (panelPrefs.textEnabled) QCColors.Space else QCColors.Soft,
+                ),
+            ) { Text(if (panelPrefs.textEnabled) "Text: on" else "Text: off") }
         }
         Spacer(Modifier.height(10.dp))
 
-        LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(history) { msg ->
-                GlassPanel(
-                    modifier = Modifier.fillMaxWidth(),
-                    accent = if (msg.role == Role.user) QCColors.Amber else QCColors.Teal,
-                ) {
-                    Column {
-                        Text(
-                            (if (msg.role == Role.user) "YOU" else cfg!!.assistantName.uppercase()),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (msg.role == Role.user) QCColors.Amber else QCColors.Teal,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(msg.content, style = MaterialTheme.typography.bodyLarge, color = QCColors.Soft)
+        if (panelPrefs.textEnabled) {
+            LazyColumn(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(history) { msg ->
+                    GlassPanel(
+                        modifier = Modifier.fillMaxWidth(),
+                        accent = if (msg.role == Role.user) QCColors.Amber else QCColors.Teal,
+                    ) {
+                        Column {
+                            Text(
+                                (if (msg.role == Role.user) "YOU" else cfg!!.assistantName.uppercase()),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = if (msg.role == Role.user) QCColors.Amber else QCColors.Teal,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(msg.content, style = MaterialTheme.typography.bodyLarge, color = QCColors.Soft)
+                        }
                     }
+                }
+            }
+        } else {
+            // Audio-only mode: show the last assistant line as a short label,
+            // the rest of the vertical space stays blank.
+            GlassPanel(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                Column {
+                    Text("AUDIO-ONLY MODE",
+                        style = MaterialTheme.typography.labelLarge, color = QCColors.Teal)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        history.lastOrNull { it.role == Role.assistant }?.content
+                            ?: "No reply yet.",
+                        style = MaterialTheme.typography.bodyLarge, color = QCColors.Soft,
+                    )
                 }
             }
         }
