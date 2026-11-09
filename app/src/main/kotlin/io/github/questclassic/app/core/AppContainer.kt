@@ -2,6 +2,7 @@ package io.github.questclassic.app.core
 
 import android.content.Context
 import io.github.questclassic.app.ai.AIRepository
+import io.github.questclassic.app.ai.ChatHistoryStore
 import io.github.questclassic.app.os.DeviceIntrospection
 import io.github.questclassic.app.os.SystemPropertyProbe
 import io.github.questclassic.app.update.SelfUpdater
@@ -24,6 +25,7 @@ class AppContainer(private val app: Context) {
     val introspection: DeviceIntrospection = DeviceIntrospection(app)
     val updater: SelfUpdater = SelfUpdater(app, http)
     val ai: AIRepository = AIRepository(app, http)
+    val chatHistory: ChatHistoryStore = ChatHistoryStore(app)
     val payloadVerifier: PayloadVerifier = PayloadVerifier(app)
     val systemProbe: SystemPropertyProbe = SystemPropertyProbe()
     val rootDetector: RootDetector = RootDetector(app)
