@@ -42,4 +42,4 @@ Build a **launcher**, not an emulator.
 3. **Thin wrapper that embeds RetroArch cores but writes our own frontend.** Rejected — RetroArch already is this frontend and has far more controller/shader/save-state polish than we'd ever add.
 4. **Lemuroid-only launcher.** Considered. Lemuroid is a great FOSS alternative but covers fewer modern systems than RetroArch. We route to it when installed; we don't force it.
 
-See [EmulatorRegistry.LicenceNote](../../app/src/main/kotlin/io/github/questclassic/app/core/EmulatorRegistry.kt) inline.
+See [EmulatorRegistry.LicenceNote](https://github.com/A-Hackers-Guide/QuestClassic/blob/main/app/src/main/kotlin/io/github/questclassic/app/core/EmulatorRegistry.kt) inline.
