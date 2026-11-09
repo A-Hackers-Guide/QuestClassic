@@ -69,6 +69,10 @@ nav:
       - Dev Super-Mode: user-guide/dev-super.md
       - Home Menu Swapper: user-guide/home-menu-swapper.md
       - Functionality Restore: user-guide/restore.md
+      - Virtual Monitors: user-guide/virtual-monitors.md
+      - Emulators: user-guide/emulators.md
+      - Device Registry: user-guide/device-registry.md
+      - Voices: user-guide/voices.md
   - Architecture:
       - Overview: architecture/overview.md
       - Module map: architecture/module-map.md
