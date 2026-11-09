@@ -67,6 +67,26 @@ All notable changes to QuestClassic are documented here. Format follows [Keep a 
 - Build-time import misses after new panels landed (`VirtualMonitorPanel`, `EmulatorPanel`): both wired through `NostalgicHomeScreen.kt` with explicit imports.
 - `PassthroughController.cameraPassthroughSupported` reads `rootDetector.status().isRooted` (nested on `RootStatus`), not `rootDetector.isRooted()`.
 
+### Added — overnight follow-ups (post-0.2.0)
+
+- **Wake-word routing** (`ai/WakeWordRouter.kt`, `ai/WakeWordDispatcher.kt`). Pure functions that turn `Hey {Name}, …` into `(backendId, payload)` — case-insensitive, word-boundary aware, optional filler ("hey"/"ok"/"hi"), longest-prefix wins ("Classic Pro" beats "Classic"), user-chosen names beat built-in display names on collision. 17 JUnit tests.
+- **Config backup / restore** (`core/ConfigBackup.kt`). One JSON blob with the AI config, device registry, voices, passthrough, widget layout — **minus** API keys, cloned-voice artifacts, chat history (policy; see ADR 0017). `CURRENT_VERSION` guard rejects unknown blobs; `RestoreSummary.humanLine()` always says "(re-enter API keys manually)".
+- **First-run setup state machine** (`core/FirstRunState.kt`). 5-step linear pipeline (BLANK → WELCOMED → CAPABILITIES_REVIEWED → AI_CONFIGURED → COMPLETE); forward-adjacent transitions only; `aiSkipped` bit survives so the AI panel can nudge later. 6 JUnit tests over `canTransition`.
+- **SetupWizardPanel** (`ui/panels/SetupWizardPanel.kt`). Compose renderer over the state machine; one card per step; honest copy about stock vs. root capabilities.
+- **AgentToolSeed** (`ai/AgentToolSeed.kt`). 8 READ_ONLY built-in tools wired at app start: `device.info`, `device.battery`, `device.uptime`, `ai.list_providers`, `ai.whoami`, `devices.list`, `voices.list`, `meta.locale`.
+- **PromptInjectionHeuristics** (`ai/PromptInjectionHeuristics.kt`). Weighted-regex detector that **flags** injection patterns (ignore previous, DAN, `</system>`, base64:) — never a filter; feeds the suspicion chip and the auto-execute decline for SIDE_EFFECT tools.
+- **SecretRedactor** (`core/SecretRedactor.kt`). Pattern-based scrubber for logs / pastes / support bundles (Anthropic / OpenAI / Google / GitHub / JWT / Bearer header) that keeps first-4 / last-4 chars for correlation.
+- **TokenBucketLimiter** (`core/TokenBucketLimiter.kt`). Pure, in-memory, injectable-clock rate limiter. 11 JUnit tests. To wrap AIBackend.chat() in follow-up.
+- **DiagnosticsBundle** (`core/DiagnosticsBundle.kt`). Shareable support snapshot JSON; policy test asserts "never mentions apiKey / perBackendKeys / chat history / timezone".
+- **VirtualMonitorEstimator** (`core/VirtualMonitorEstimator.kt`). Per-SoC realistic monitor-count caps; `no-tier-returns-20-100` policy test keeps future edits honest. 8 JUnit tests.
+- **SlashCommands** (`ai/SlashCommands.kt`). In-chat parser for `/help /clear /status /switch /export /rename /whoami /reset`. 10 JUnit tests.
+- **mDNS discovery crate** (`companion/crates/discovery`). DNS-SD service type + default port + TXT-record keys + `ResolvedCompanion::from_txt` parser. 6 Rust unit tests.
+- **17 more Meta hosts** split across two new categories (`TELEMETRY`, `OTA`) — 24 → 41 hosts total. Panel accent colours wired.
+- **Build Tools HUD + 8 tier-3 widgets**: JVM_HEAP, SECURITY_PATCH, ABI_LIST, BOARD, BOOT_TIME, SENSOR_COUNT, DISPLAY_REFRESH, GL_VERSION.
+- **9 more buzz patterns** covering AI, companion pairing, emulator launch, config export/restore.
+- **10 more detect-and-launch emulator targets** (Atari 2600, MAME, Saturn, Dreamcast, GB/C, GBA, DS, Apple II, AetherSX2, Redream) — 22 → 32 total.
+- **ADRs 0016-0023** capturing the designs of each of the above as pure-function / state-machine / policy decisions.
+
 ## [0.2.0] - 2026-11-08
 
 ### Added
