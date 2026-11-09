@@ -1,0 +1,56 @@
+name: Companion
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'companion/**'
+      - '.github/workflows/companion.yml'
+  pull_request:
+    paths:
+      - 'companion/**'
+      - '.github/workflows/companion.yml'
+
+jobs:
+  check:
+    name: cargo check + test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: companion }
+      - name: cargo check
+        working-directory: companion
+        run: cargo check --workspace --all-targets
+      - name: cargo test
+        working-directory: companion
+        run: cargo test --workspace
+
+  fmt:
+    name: cargo fmt --check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: rustfmt }
+      - name: cargo fmt
+        working-directory: companion
+        run: cargo fmt --all --check
+
+  clippy:
+    name: cargo clippy -D warnings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: clippy }
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: companion }
+      - name: cargo clippy
+        working-directory: companion
+        run: cargo clippy --workspace --all-targets -- -D warnings

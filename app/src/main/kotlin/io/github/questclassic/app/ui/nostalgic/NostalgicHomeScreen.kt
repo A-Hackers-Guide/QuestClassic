@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.DeleteSweep
+import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.Healing
 import androidx.compose.material.icons.outlined.Home
@@ -70,6 +71,7 @@ import io.github.questclassic.app.ui.theme.QCColors
 enum class HomeScreen {
     HOME, LAUNCHER, DIAGNOSTICS, AI, BUILD, UPDATE, SETTINGS, SIG_VERIFY, INTERNALS, META_HOSTS,
     STRIP_META, FIRMWARE_DUMP, BOOT_ANIM, DEV_SUPER, HOME_SWAP, AR_SEMICIRCLE, RESTORE,
+    VIRTUAL_MONITORS,
 }
 
 @Composable
@@ -95,6 +97,7 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.HOME_SWAP -> HomeMenuSwapperPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.AR_SEMICIRCLE -> ARSemicirclePanel(container) { screen = HomeScreen.HOME }
             HomeScreen.RESTORE -> RestorePanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.VIRTUAL_MONITORS -> VirtualMonitorPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -155,6 +158,7 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.HOME_SWAP, Icons.Outlined.Home, "Home Swapper", "Choose what launches when you take off standby. Root-gated."),
             HomeTile(HomeScreen.AR_SEMICIRCLE, Icons.Outlined.ViewInAr, "AR Semicircle", "The 90° hand menu — flat preview + 2D fallback."),
             HomeTile(HomeScreen.RESTORE, Icons.Outlined.Healing, "Restore", "The 30s 'anything wrong?' timer and escalation ladder."),
+            HomeTile(HomeScreen.VIRTUAL_MONITORS, Icons.Outlined.DesktopWindows, "Virtual Monitors", "Pair a desktop and stream virtual monitors to it."),
         )
     }
 }
