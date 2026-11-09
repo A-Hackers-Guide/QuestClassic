@@ -1,7 +1,9 @@
 package io.github.questclassic.app.ai
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -79,5 +81,26 @@ class AgentToolRegistryTest {
         assertTrue(SafetyLevel.SIDE_EFFECT in levels)
         assertTrue(SafetyLevel.CROSS_DEVICE in levels)
         assertEquals(5, levels.size)
+    }
+
+    // --- Added with seed PR: invoke-path and JSON payload shape ---
+
+    @Test
+    fun `invoke returns the declared summary`() {
+        AgentToolRegistry.register(stubTool())
+        val res = runBlocking {
+            AgentToolRegistry.get("device.battery")!!.invoke(buildJsonObject {})
+        }
+        assertEquals(true, res.ok)
+        assertEquals("87%", res.summary)
+    }
+
+    @Test
+    fun `payload JSON is addressable from a caller`() {
+        AgentToolRegistry.register(stubTool())
+        val res = runBlocking {
+            AgentToolRegistry.get("device.battery")!!.invoke(JsonObject(emptyMap()))
+        }
+        assertEquals("87", res.payload.toString())
     }
 }
