@@ -1,16 +1,23 @@
 [versions]
-agp = "8.6.1"
-kotlin = "2.0.21"
-compose-bom = "2024.10.01"
-activity-compose = "1.9.3"
-lifecycle = "2.8.7"
-coroutines = "1.9.0"
-material3 = "1.3.1"
-datastore = "1.1.1"
+# Toolchain uplift (#28). Bumping these in lockstep:
+#   - JDK 17 → 21
+#   - Gradle 8.10 → 8.13   (AGP 8.9 pins Gradle to the 8.x series)
+#   - AGP 8.6.1 → 8.9.3     (requires Gradle 8.11+, works with JDK 21)
+#   - Kotlin 2.0.21 → 2.1.21
+#   - compose-bom to the 2025.10 line (compile-sdk 36 + Kotlin 2.1 compatible)
+#   - compileSdk 35 → 36 (Android 15 → 16 SDK surface)
+agp = "8.9.3"
+kotlin = "2.1.21"
+compose-bom = "2025.10.00"
+activity-compose = "1.10.1"
+lifecycle = "2.9.0"
+coroutines = "1.10.1"
+material3 = "1.3.2"
+datastore = "1.1.2"
 okhttp = "4.12.0"
 serialization = "1.7.3"
-core-ktx = "1.15.0"
-navigation-compose = "2.8.4"
+core-ktx = "1.16.0"
+navigation-compose = "2.8.5"
 junit = "4.13.2"
 
 [libraries]
