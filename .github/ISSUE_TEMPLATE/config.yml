@@ -12,3 +12,6 @@ contact_links:
   - name: FAQ
     url: https://github.com/A-Hackers-Guide/QuestClassic/blob/main/docs/faq.md
     about: Frequently asked questions.
+  - name: Documentation
+    url: https://a-hackers-guide.github.io/QuestClassic/
+    about: User guide + ADRs.
