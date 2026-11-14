@@ -42,6 +42,26 @@ class ControllerHaptics(context: Context) {
     fun cancel() {
         runCatching { vibrator.cancel() }
     }
+
+    /**
+     * Plays a [BuzzSequence] — each pattern in order with the sequence's
+     * inter-pattern gap. Promised in #110.
+     *
+     * Suspends the caller's coroutine between patterns. Cancel the
+     * coroutine to stop mid-sequence; [cancel] will clear any residue
+     * on the vibrator.
+     */
+    suspend fun playSequence(seq: BuzzSequence) {
+        if (!vibrator.hasVibrator()) return
+        for ((i, pattern) in seq.patterns.withIndex()) {
+            playPattern(pattern)
+            val own = pattern.toTimings().sum()
+            // Wait for the pattern to finish + the inter-pattern gap
+            // before firing the next one; never gap after the last.
+            val sleep = own + if (i == seq.patterns.lastIndex) 0L else seq.gapMs
+            kotlinx.coroutines.delay(sleep)
+        }
+    }
 }
 
 /** A buzz pattern built from short "dot" (.) and long "dash" (-) pulses. */
