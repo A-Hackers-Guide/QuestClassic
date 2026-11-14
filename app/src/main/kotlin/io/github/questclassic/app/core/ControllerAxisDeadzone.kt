@@ -1,6 +1,7 @@
 package io.github.questclassic.app.core
 
 import kotlin.math.hypot
+import kotlin.math.pow
 
 /**
  * Applies a radial deadzone + outer clamp + response curve to a Touch
@@ -33,7 +34,7 @@ object ControllerAxisDeadzone {
         if (mag <= innerRadius) return XY(0f, 0f)
         val span = outerRadius - innerRadius
         val normalised = ((mag - innerRadius) / span).coerceIn(0f, 1f)
-        val eased = kotlin.math.pow(normalised.toDouble(), expo.toDouble()).toFloat()
+        val eased = normalised.toDouble().pow(expo.toDouble()).toFloat()
         // Preserve direction, scale to eased magnitude.
         val scale = eased / mag
         return XY(rawX * scale, rawY * scale)
