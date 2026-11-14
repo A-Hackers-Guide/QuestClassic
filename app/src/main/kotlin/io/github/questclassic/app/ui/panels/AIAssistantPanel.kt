@@ -197,13 +197,33 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                 enabled = !sending && draft.isNotBlank(),
                 onClick = {
                     val text = draft.trim(); draft = ""
+                    // Slash-command intercept: /help, /clear, /status, /switch,
+                    // /rename, /export, /whoami, /reset — handled locally without
+                    // a model round-trip. Unknown or non-slash input falls through.
+                    val parsed = io.github.questclassic.app.ai.SlashCommands.parse(text)
+                    if (parsed != null) {
+                        history += ChatMessage(Role.user, text)
+                        val reply = handleSlashCommand(parsed, cfg!!, container, scope)
+                        history += ChatMessage(Role.assistant, reply)
+                        return@Button
+                    }
                     history += ChatMessage(Role.user, text)
                     sending = true
                     scope.launch {
-                        val backend = container.ai.backendById(cfg!!.backendId)
+                        // Route by wake name if the user said "Hey {Name}, …";
+                        // otherwise fall through to the active backend.
+                        val dispatch = io.github.questclassic.app.ai.WakeWordDispatcher()
+                            .dispatch(text, cfg!!, container.ai.backends)
+                        val backend = dispatch.backend
+                        val payloadHistory = if (dispatch.wakeMatched) {
+                            // Replace the last-added user message with the wake-stripped payload.
+                            history.toMutableList().also { list ->
+                                list[list.lastIndex] = ChatMessage(Role.user, dispatch.payload)
+                            }
+                        } else history.toList()
                         val reply = backend.chat(
                             systemPrompt = cfg!!.systemPrompt,
-                            history = history.toList(),
+                            history = payloadHistory,
                             apiKey = cfg!!.apiKey,
                             model = cfg!!.model.ifBlank { null },
                         )
@@ -351,6 +371,78 @@ private fun modelPlaceholderFor(backendId: String): String = when (backendId) {
     "gemini" -> "e.g. gemini-2.0-flash"
     "ollama" -> "e.g. llama3.2"
     else -> ""
+}
+
+/**
+ * Local execution for the slash commands parsed off the text input.
+ * Returns the assistant-role reply the panel should show immediately;
+ * side-effects that take real work (clear history, reset first-run)
+ * are launched on [scope]. Never calls the AI backend.
+ */
+private fun handleSlashCommand(
+    parsed: io.github.questclassic.app.ai.SlashCommands.Parsed,
+    cfg: AIConfig,
+    container: io.github.questclassic.app.core.AppContainer,
+    scope: kotlinx.coroutines.CoroutineScope,
+): String {
+    return when (parsed.command) {
+        io.github.questclassic.app.ai.SlashCommands.Command.HELP ->
+            io.github.questclassic.app.ai.SlashCommands.helpLines().joinToString("\n")
+        io.github.questclassic.app.ai.SlashCommands.Command.STATUS,
+        io.github.questclassic.app.ai.SlashCommands.Command.WHOAMI -> {
+            "Active: ${cfg.assistantName} · backend=${cfg.backendId} · model=${cfg.model.ifBlank { "(default)" }}"
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.CLEAR -> {
+            scope.launch { container.chatHistory.clear(cfg.backendId) }
+            "Chat history cleared for ${cfg.backendId}."
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.SWITCH -> {
+            val target = parsed.args.firstOrNull()?.lowercase()
+            if (target == null || container.ai.backends.none { it.id == target }) {
+                "Usage: /switch {claude|openai|gemini|ollama}"
+            } else {
+                scope.launch { container.ai.save(cfg.copy(backendId = target)) }
+                "Switched active backend to $target. Reopen the panel to refresh."
+            }
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.RENAME -> {
+            val newName = parsed.args.joinToString(" ").trim()
+            if (newName.isBlank()) "Usage: /rename <new name>"
+            else {
+                scope.launch {
+                    container.ai.save(
+                        cfg.copy(
+                            assistantName = newName,
+                            perBackendNames = cfg.perBackendNames + (cfg.backendId to newName),
+                        )
+                    )
+                }
+                "Renamed to $newName for backend ${cfg.backendId}."
+            }
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.EXPORT -> {
+            scope.launch {
+                val history = container.chatHistory.load(cfg.backendId)
+                val md = io.github.questclassic.app.ai.TranscriptExporter.export(
+                    backendId = cfg.backendId,
+                    assistantName = cfg.assistantName,
+                    history = history,
+                    format = io.github.questclassic.app.ai.TranscriptExporter.Format.MARKDOWN,
+                )
+                container.notifications.post(
+                    severity = io.github.questclassic.app.core.NotificationCenter.Severity.INFO,
+                    category = io.github.questclassic.app.core.NotificationCenter.Category.AI,
+                    title = "Transcript exported",
+                    body = "${md.length} chars (preview in Notifications panel)",
+                )
+            }
+            "Transcript export queued; see Notifications for the result."
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.RESET -> {
+            scope.launch { container.firstRun.reset() }
+            "First-run wizard reset. Reopen the app to see it again."
+        }
+    }
 }
 
 @Composable
