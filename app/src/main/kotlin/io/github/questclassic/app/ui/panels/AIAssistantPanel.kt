@@ -249,8 +249,18 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                                 model = cfg!!.model.ifBlank { null },
                             ).getOrNull()
                         }
+                        // Compose the user's preferred tone (UserPrefs
+                        // PREFERRED_TONE, from #125) onto the system prompt
+                        // (from #97). The user's own prompt stays
+                        // authoritative; tone is a prefix modifier.
+                        val toneName = container.userPrefs
+                            .string(io.github.questclassic.app.core.UserPrefs.StringPref.PREFERRED_TONE)
+                        val tone = io.github.questclassic.app.ai.AssistantToneProfile.byName(toneName)
+                        val composedPrompt = if (tone == null) cfg!!.systemPrompt
+                            else io.github.questclassic.app.ai.AssistantToneProfile
+                                .compose(tone, cfg!!.systemPrompt)
                         val reply = backend.chat(
-                            systemPrompt = cfg!!.systemPrompt,
+                            systemPrompt = composedPrompt,
                             history = payloadHistory,
                             apiKey = cfg!!.apiKey,
                             model = cfg!!.model.ifBlank { null },
