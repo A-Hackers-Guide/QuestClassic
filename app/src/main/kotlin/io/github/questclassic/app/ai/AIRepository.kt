@@ -45,11 +45,14 @@ data class AIConfig(
  * except in the HTTPS request to the chosen backend.
  */
 class AIRepository(private val context: Context, http: OkHttpClient) {
+    // Raw backends wrapped in RateLimitedBackend so a jailbroken prompt
+    // or a looping client can't burn through the user's quota. Per-backend
+    // buckets so Claude exhausting its rate doesn't throttle Ollama.
     val backends: List<AIBackend> = listOf(
-        ClaudeBackend(http),
-        OpenAIBackend(http),
-        GeminiBackend(http),
-        OllamaBackend(http),
+        RateLimitedBackend(ClaudeBackend(http), RateLimitedBackend.defaultLimiterFor("claude")),
+        RateLimitedBackend(OpenAIBackend(http), RateLimitedBackend.defaultLimiterFor("openai")),
+        RateLimitedBackend(GeminiBackend(http), RateLimitedBackend.defaultLimiterFor("gemini")),
+        RateLimitedBackend(OllamaBackend(http), RateLimitedBackend.defaultLimiterFor("ollama")),
     )
 
     fun backendById(id: String): AIBackend =
