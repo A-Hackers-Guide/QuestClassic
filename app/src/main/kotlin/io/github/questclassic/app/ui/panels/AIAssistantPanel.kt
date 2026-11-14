@@ -62,6 +62,8 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
             history.clear()
             history.addAll(saved)
         }
+        // Restore the user's unsent draft for THIS backend (from #104).
+        draft = container.drafts.load(c.backendId)
     }
 
     // Save history after every mutation so a crash doesn't lose the thread.
@@ -69,6 +71,15 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
         snapshotFlow { history.toList() }.collect { snap ->
             val id = cfg?.backendId ?: return@collect
             container.chatHistory.save(id, snap)
+        }
+    }
+
+    // Save the unsent draft on every keystroke (debounced by snapshotFlow's
+    // conflation — DataStore absorbs the writes).
+    LaunchedEffect(Unit) {
+        snapshotFlow { draft }.collect { current ->
+            val id = cfg?.backendId ?: return@collect
+            container.drafts.save(id, current)
         }
     }
 
@@ -205,8 +216,12 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                         history += ChatMessage(Role.user, text)
                         val reply = handleSlashCommand(parsed, cfg!!, container, scope)
                         history += ChatMessage(Role.assistant, reply)
+                        // Clear the saved draft too — the slash-command input is handled.
+                        scope.launch { container.drafts.clear(cfg!!.backendId) }
                         return@Button
                     }
+                    // Non-slash send: also clear draft since we just sent it.
+                    scope.launch { container.drafts.clear(cfg!!.backendId) }
                     history += ChatMessage(Role.user, text)
                     sending = true
                     scope.launch {
@@ -215,12 +230,25 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                         val dispatch = io.github.questclassic.app.ai.WakeWordDispatcher()
                             .dispatch(text, cfg!!, container.ai.backends)
                         val backend = dispatch.backend
-                        val payloadHistory = if (dispatch.wakeMatched) {
+                        val rawHistory = if (dispatch.wakeMatched) {
                             // Replace the last-added user message with the wake-stripped payload.
                             history.toMutableList().also { list ->
                                 list[list.lastIndex] = ChatMessage(Role.user, dispatch.payload)
                             }
                         } else history.toList()
+                        // Compact long threads before send (from #98): summary + recent-20
+                        // once the history crosses the trigger. The summary callback asks
+                        // the SAME backend to summarise so the user doesn't pay for a
+                        // separate summariser model.
+                        val compactor = io.github.questclassic.app.ai.HistoryCompactor()
+                        val payloadHistory = compactor.compact(rawHistory) { older ->
+                            backend.chat(
+                                systemPrompt = "Summarise this earlier conversation in 3-5 sentences.",
+                                history = older,
+                                apiKey = cfg!!.apiKey,
+                                model = cfg!!.model.ifBlank { null },
+                            ).getOrNull()
+                        }
                         val reply = backend.chat(
                             systemPrompt = cfg!!.systemPrompt,
                             history = payloadHistory,
