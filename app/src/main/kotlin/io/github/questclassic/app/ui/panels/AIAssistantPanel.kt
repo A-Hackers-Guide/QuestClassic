@@ -275,17 +275,41 @@ private fun AIConfigForm(
                 value = key,
                 placeholder = keyPlaceholderFor(backend),
             ) { key = it }
+            // Early-fail shape check so a 'Bearer …' header or wrong-provider
+            // key gets caught here instead of as a 401 later.
+            val keyVerdict = io.github.questclassic.app.ai.ApiKeyValidator.validate(backend, key)
+            when (keyVerdict) {
+                is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Error -> {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Key looks wrong: ${keyVerdict.reason}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QCColors.Warn,
+                    )
+                }
+                is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Warn -> {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Note: ${keyVerdict.reason}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QCColors.Amber,
+                    )
+                }
+                io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Ok -> Unit
+            }
             Spacer(Modifier.height(8.dp))
             AIField("System prompt (your assistant's personality)", prompt, maxLines = 5) { prompt = it }
             Spacer(Modifier.height(14.dp))
+            val saveBlocked = keyVerdict is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Error
             Button(
+                enabled = !saveBlocked,
                 onClick = {
                     onSave(
                         AIConfig(
                             assistantName = name.ifBlank { defaultWakeNameFor(backend) },
                             backendId = backend,
                             model = model,
-                            apiKey = key,
+                            apiKey = key.trim(),  // trim so Warn-whitespace saves clean
                             systemPrompt = prompt,
                             perBackendNames = perBackendNames,
                             perBackendKeys = perBackendKeys,
@@ -293,7 +317,7 @@ private fun AIConfigForm(
                     )
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = QCColors.Teal, contentColor = QCColors.Space),
-            ) { Text("Save") }
+            ) { Text(if (saveBlocked) "Fix key first" else "Save") }
         }
     }
 }
