@@ -100,6 +100,18 @@ All notable changes to QuestClassic are documented here. Format follows [Keep a 
 - **GitHub templates** (`.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md`, `config.yml`). Risk-and-rollback + Policy-ADR-links sections in the PR template; DiagnosticsBundle pointer in the bug template; private-advisory link in the config.
 - **4 more user-guide pages**: setup-wizard, voices, virtual-monitor, companion.
 - **ADRs 0024-0029** capturing: mDNS backend-free, tone directive, compactor safety, slash enum registry, clipboard choke-point, key validator shape-not-auth.
+- **PathValidator** (`core/PathValidator.kt`). Shape check + sanitiser for user-supplied filenames; refuses traversal, absolute paths, reserved names, invalid chars.
+- **ConfigMigrator** (`core/ConfigMigrator.kt`). Scaffolded schema-migration chain for ConfigBackup — step-by-1 enforced, downgrade refused.
+- **ContentIntegrity** (`core/ContentIntegrity.kt`). SHA-256 + 12-char display hash + case-insensitive verify for backup / diagnostics attachment verification.
+- **BootTiming** (`core/BootTiming.kt`). Phase-boundary timer; mark + toJson for slow-boot diagnostics.
+- **AppVersionInfo** (`core/AppVersionInfo.kt`). One-line + compact display forms carrying versionName / versionCode / buildType / gitSha.
+- **TranscriptExporter** (`ai/TranscriptExporter.kt`). Markdown and JSON export for chat threads; SecretRedactor applied to every message on output.
+- **ChangelogParser** (`update/ChangelogParser.kt`). Keep-a-Changelog reader for About-panel and release-pipeline consumption.
+- **ExperimentalFlags** (`core/ExperimentalFlags.kt`). 5 opt-in feature flags backed by DataStore (AUTO_SUMMARISE_LONG_HISTORY, WAKE_WORD_STRICT_BOUNDARY, DIAGNOSTICS_BUNDLE_COPY, COMPANION_PAIRING, EMULATOR_FOREGROUND_LAUNCH).
+- **NotificationCenter** (`core/NotificationCenter.kt`). In-process notice feed for the bell icon: 3 severities × 7 categories, 64-cap, StateFlow-exposed.
+- **VoiceClonePipeline** (`ai/VoiceClonePipeline.kt`). Orchestrator over VoiceRegistry's state machine; injectable record + train callbacks; FAILED-with-reason on step error.
+- **LogRingBuffer** (`core/LogRingBuffer.kt`). In-memory log ring that runs SecretRedactor on write; backs DiagnosticsBundle's log attachment without needing adb.
+- **ScriptTemplates** (`core/ScriptTemplates.kt`). 14 copy-ready adb / pm one-liners across 7 categories for the Dev Super-Mode panel. Firmware + passthrough entries root-gated.
 
 ## [0.2.0] - 2026-11-08
 
