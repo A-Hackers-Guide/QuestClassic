@@ -36,6 +36,10 @@ import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Rocket
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.outlined.ViewInAr
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.Summarize
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -59,6 +63,10 @@ import io.github.questclassic.app.ui.panels.FirmwareDumpPanel
 import io.github.questclassic.app.ui.panels.HomeMenuSwapperPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
+import io.github.questclassic.app.ui.panels.SetupWizardPanel
+import io.github.questclassic.app.ui.panels.NotificationsPanel
+import io.github.questclassic.app.ui.panels.ExperimentalFlagsPanel
+import io.github.questclassic.app.ui.panels.DiagnosticsBundlePanel
 import io.github.questclassic.app.ui.panels.DevicesPanel
 import io.github.questclassic.app.ui.panels.PassthroughPanel
 import io.github.questclassic.app.ui.panels.EmulatorPanel
@@ -85,6 +93,10 @@ enum class HomeScreen {
     DEVICES,
     VOICES,
     PASSTHROUGH,
+    SETUP_WIZARD,
+    NOTIFICATIONS,
+    EXPERIMENTAL,
+    DIAGNOSTICS_BUNDLE,
 }
 
 @Composable
@@ -115,6 +127,10 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.DEVICES -> DevicesPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.VOICES -> VoicesPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.PASSTHROUGH -> PassthroughPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.SETUP_WIZARD -> SetupWizardPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.NOTIFICATIONS -> NotificationsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.EXPERIMENTAL -> ExperimentalFlagsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.DIAGNOSTICS_BUNDLE -> DiagnosticsBundlePanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -180,6 +196,10 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.DEVICES, Icons.Outlined.Devices, "Devices", "Pair + manage companions, Ollama servers, bridges."),
             HomeTile(HomeScreen.VOICES, Icons.Outlined.RecordVoiceOver, "Voices", "Manage built-in TTS + clone your own."),
             HomeTile(HomeScreen.PASSTHROUGH, Icons.Outlined.CameraAlt, "Passthrough", "Camera / audio / text passthrough toggles."),
+            HomeTile(HomeScreen.SETUP_WIZARD, Icons.Outlined.PlayArrow, "Setup wizard", "Re-run the first-run flow."),
+            HomeTile(HomeScreen.NOTIFICATIONS, Icons.Outlined.Notifications, "Notifications", "In-app notice feed from every module."),
+            HomeTile(HomeScreen.EXPERIMENTAL, Icons.Outlined.Science, "Experimental Flags", "Toggle opt-in features before they graduate."),
+            HomeTile(HomeScreen.DIAGNOSTICS_BUNDLE, Icons.Outlined.Summarize, "Diagnostics Bundle", "Shareable support snapshot — no keys travel."),
         )
     }
 }
