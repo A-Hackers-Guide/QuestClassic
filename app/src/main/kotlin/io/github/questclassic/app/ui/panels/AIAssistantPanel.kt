@@ -222,6 +222,19 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                     }
                     // Non-slash send: also clear draft since we just sent it.
                     scope.launch { container.drafts.clear(cfg!!.backendId) }
+                    // Prompt-injection flag (from #89): post a NotificationCenter
+                    // notice when the heuristic trips. Message still goes through —
+                    // we never block user input, per ADR 0022.
+                    val suspicion = io.github.questclassic.app.ai.PromptInjectionHeuristics.inspect(text)
+                    if (suspicion.suspicious) {
+                        container.notifications.post(
+                            severity = io.github.questclassic.app.core.NotificationCenter.Severity.WARN,
+                            category = io.github.questclassic.app.core.NotificationCenter.Category.AI,
+                            title = "Prompt flagged",
+                            body = "Message tripped ${suspicion.signals.size} injection pattern(s); " +
+                                "tool auto-execute will prompt for confirmation.",
+                        )
+                    }
                     history += ChatMessage(Role.user, text)
                     sending = true
                     scope.launch {
