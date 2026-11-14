@@ -40,6 +40,7 @@ class AppContainer(private val app: Context) {
     val firstRun: FirstRunController = FirstRunController(app)
     val experimentalFlags: ExperimentalFlags = ExperimentalFlags(app)
     val notifications: NotificationCenter = NotificationCenter()
+    val userPrefs: UserPrefs = UserPrefs(app)
     val drafts: io.github.questclassic.app.ai.DraftStore = io.github.questclassic.app.ai.DraftStore(app)
 
     init {
