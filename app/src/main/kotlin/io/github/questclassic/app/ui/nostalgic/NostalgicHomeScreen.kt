@@ -63,6 +63,10 @@ import io.github.questclassic.app.ui.panels.FirmwareDumpPanel
 import io.github.questclassic.app.ui.panels.HomeMenuSwapperPanel
 import io.github.questclassic.app.ui.panels.LauncherPanel
 import io.github.questclassic.app.ui.panels.MetaHostsAuditPanel
+import io.github.questclassic.app.ui.panels.SetupWizardPanel
+import io.github.questclassic.app.ui.panels.NotificationsPanel
+import io.github.questclassic.app.ui.panels.ExperimentalFlagsPanel
+import io.github.questclassic.app.ui.panels.DiagnosticsBundlePanel
 import io.github.questclassic.app.ui.panels.DevicesPanel
 import io.github.questclassic.app.ui.panels.PassthroughPanel
 import io.github.questclassic.app.ui.panels.EmulatorPanel
