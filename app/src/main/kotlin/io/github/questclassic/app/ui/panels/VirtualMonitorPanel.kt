@@ -20,7 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import io.github.questclassic.app.core.AppContainer
+import io.github.questclassic.app.core.NsdDiscoverer
 import io.github.questclassic.app.core.VirtualMonitorEstimator
 import io.github.questclassic.app.ui.nostalgic.GlassPanel
 import io.github.questclassic.app.ui.theme.QCColors
@@ -42,9 +46,29 @@ import io.github.questclassic.app.ui.theme.QCColors
  */
 @Composable
 fun VirtualMonitorPanel(container: AppContainer, onClose: () -> Unit) {
-    // TODO(M1): replace with a real mDNS scanner that returns Companion rows.
-    val companions = remember { mutableStateOf(emptyList<CompanionEntry>()) }
+    // Real mDNS scanner lives in NsdDiscoverer (#138). Lifecycle-bound to
+    // the Composable so we start on first show and stop on dispose.
+    val ctx = LocalContext.current
+    val discoverer = remember { NsdDiscoverer(ctx) }
+    val resolved by discoverer.discovered.collectAsState()
     var scanning by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose { discoverer.stop() }
+    }
+
+    // Keep the old data shape around for the CompanionRow renderer.
+    val companions = remember(resolved) {
+        mutableStateOf(resolved.map {
+            CompanionEntry(
+                hostname = it.serviceName,
+                address = it.host,
+                port = it.port,
+                hostOs = it.txt["os"] ?: "unknown",
+                maxDisplays = it.txt["cap"]?.toIntOrNull() ?: 4,
+            )
+        })
+    }
 
     Column(Modifier.fillMaxSize()) {
         PanelClose(
@@ -116,7 +140,10 @@ fun VirtualMonitorPanel(container: AppContainer, onClose: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Button(
-                onClick = { scanning = true /* TODO(M1): run mDNS scan */ },
+                onClick = {
+                    scanning = true
+                    discoverer.start()
+                },
                 enabled = !scanning,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = QCColors.Teal,
@@ -125,7 +152,7 @@ fun VirtualMonitorPanel(container: AppContainer, onClose: () -> Unit) {
             ) { Text(if (scanning) "Scanning…" else "Scan LAN") }
 
             Button(
-                onClick = { companions.value = emptyList(); scanning = false },
+                onClick = { discoverer.stop(); scanning = false },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = QCColors.Edge,
                     contentColor = QCColors.Soft,
