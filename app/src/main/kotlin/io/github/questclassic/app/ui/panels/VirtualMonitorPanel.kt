@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.questclassic.app.core.AppContainer
+import io.github.questclassic.app.core.VirtualMonitorEstimator
 import io.github.questclassic.app.ui.nostalgic.GlassPanel
 import io.github.questclassic.app.ui.theme.QCColors
 
@@ -75,6 +76,33 @@ fun VirtualMonitorPanel(container: AppContainer, onClose: () -> Unit) {
                 Text(
                     "Install the companion first: see companion/README.md " +
                         "in the repo. Then come back here and tap Scan.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QCColors.Dim,
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+
+        // Per-SoC estimate — shows the user what this headset can realistically hold.
+        val estimate = remember {
+            VirtualMonitorEstimator.estimate(android.os.Build.HARDWARE, android.os.Build.BOARD)
+        }
+        GlassPanel(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                Text(
+                    "YOUR HEADSET",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = QCColors.Teal,
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Tier ${estimate.tier.name} · realistic ${estimate.realistic} · cap ${estimate.hardCap}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = QCColors.Soft,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    estimate.humanNote,
                     style = MaterialTheme.typography.bodySmall,
                     color = QCColors.Dim,
                 )
