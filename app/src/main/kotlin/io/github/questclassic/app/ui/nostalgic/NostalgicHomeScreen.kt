@@ -40,6 +40,8 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Summarize
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -67,6 +69,8 @@ import io.github.questclassic.app.ui.panels.SetupWizardPanel
 import io.github.questclassic.app.ui.panels.NotificationsPanel
 import io.github.questclassic.app.ui.panels.ExperimentalFlagsPanel
 import io.github.questclassic.app.ui.panels.DiagnosticsBundlePanel
+import io.github.questclassic.app.ui.panels.UserPrefsPanel
+import io.github.questclassic.app.ui.panels.ScriptTemplatesPanel
 import io.github.questclassic.app.ui.panels.DevicesPanel
 import io.github.questclassic.app.ui.panels.PassthroughPanel
 import io.github.questclassic.app.ui.panels.EmulatorPanel
@@ -97,6 +101,8 @@ enum class HomeScreen {
     NOTIFICATIONS,
     EXPERIMENTAL,
     DIAGNOSTICS_BUNDLE,
+    USER_PREFS,
+    SCRIPT_TEMPLATES,
 }
 
 @Composable
@@ -131,6 +137,8 @@ fun NostalgicHomeScreen(container: AppContainer) {
             HomeScreen.NOTIFICATIONS -> NotificationsPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.EXPERIMENTAL -> ExperimentalFlagsPanel(container) { screen = HomeScreen.HOME }
             HomeScreen.DIAGNOSTICS_BUNDLE -> DiagnosticsBundlePanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.USER_PREFS -> UserPrefsPanel(container) { screen = HomeScreen.HOME }
+            HomeScreen.SCRIPT_TEMPLATES -> ScriptTemplatesPanel(container) { screen = HomeScreen.HOME }
         }
     }
 }
@@ -200,6 +208,8 @@ private data class HomeTile(val screen: HomeScreen, val icon: androidx.compose.u
             HomeTile(HomeScreen.NOTIFICATIONS, Icons.Outlined.Notifications, "Notifications", "In-app notice feed from every module."),
             HomeTile(HomeScreen.EXPERIMENTAL, Icons.Outlined.Science, "Experimental Flags", "Toggle opt-in features before they graduate."),
             HomeTile(HomeScreen.DIAGNOSTICS_BUNDLE, Icons.Outlined.Summarize, "Diagnostics Bundle", "Shareable support snapshot — no keys travel."),
+            HomeTile(HomeScreen.USER_PREFS, Icons.Outlined.Tune, "Preferences", "Tone, haptics, scale, and other small knobs."),
+            HomeTile(HomeScreen.SCRIPT_TEMPLATES, Icons.Outlined.Code, "Script Templates", "Copy-ready adb + pm one-liners by category."),
         )
     }
 }
