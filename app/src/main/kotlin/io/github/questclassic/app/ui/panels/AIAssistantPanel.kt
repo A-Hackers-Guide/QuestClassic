@@ -197,13 +197,33 @@ fun AIAssistantPanel(container: AppContainer, onClose: () -> Unit) {
                 enabled = !sending && draft.isNotBlank(),
                 onClick = {
                     val text = draft.trim(); draft = ""
+                    // Slash-command intercept: /help, /clear, /status, /switch,
+                    // /rename, /export, /whoami, /reset — handled locally without
+                    // a model round-trip. Unknown or non-slash input falls through.
+                    val parsed = io.github.questclassic.app.ai.SlashCommands.parse(text)
+                    if (parsed != null) {
+                        history += ChatMessage(Role.user, text)
+                        val reply = handleSlashCommand(parsed, cfg!!, container, scope)
+                        history += ChatMessage(Role.assistant, reply)
+                        return@Button
+                    }
                     history += ChatMessage(Role.user, text)
                     sending = true
                     scope.launch {
-                        val backend = container.ai.backendById(cfg!!.backendId)
+                        // Route by wake name if the user said "Hey {Name}, …";
+                        // otherwise fall through to the active backend.
+                        val dispatch = io.github.questclassic.app.ai.WakeWordDispatcher()
+                            .dispatch(text, cfg!!, container.ai.backends)
+                        val backend = dispatch.backend
+                        val payloadHistory = if (dispatch.wakeMatched) {
+                            // Replace the last-added user message with the wake-stripped payload.
+                            history.toMutableList().also { list ->
+                                list[list.lastIndex] = ChatMessage(Role.user, dispatch.payload)
+                            }
+                        } else history.toList()
                         val reply = backend.chat(
                             systemPrompt = cfg!!.systemPrompt,
-                            history = history.toList(),
+                            history = payloadHistory,
                             apiKey = cfg!!.apiKey,
                             model = cfg!!.model.ifBlank { null },
                         )
@@ -275,17 +295,41 @@ private fun AIConfigForm(
                 value = key,
                 placeholder = keyPlaceholderFor(backend),
             ) { key = it }
+            // Early-fail shape check so a 'Bearer …' header or wrong-provider
+            // key gets caught here instead of as a 401 later.
+            val keyVerdict = io.github.questclassic.app.ai.ApiKeyValidator.validate(backend, key)
+            when (keyVerdict) {
+                is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Error -> {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Key looks wrong: ${keyVerdict.reason}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QCColors.Warn,
+                    )
+                }
+                is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Warn -> {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Note: ${keyVerdict.reason}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QCColors.Amber,
+                    )
+                }
+                io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Ok -> Unit
+            }
             Spacer(Modifier.height(8.dp))
             AIField("System prompt (your assistant's personality)", prompt, maxLines = 5) { prompt = it }
             Spacer(Modifier.height(14.dp))
+            val saveBlocked = keyVerdict is io.github.questclassic.app.ai.ApiKeyValidator.Verdict.Error
             Button(
+                enabled = !saveBlocked,
                 onClick = {
                     onSave(
                         AIConfig(
                             assistantName = name.ifBlank { defaultWakeNameFor(backend) },
                             backendId = backend,
                             model = model,
-                            apiKey = key,
+                            apiKey = key.trim(),  // trim so Warn-whitespace saves clean
                             systemPrompt = prompt,
                             perBackendNames = perBackendNames,
                             perBackendKeys = perBackendKeys,
@@ -293,7 +337,7 @@ private fun AIConfigForm(
                     )
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = QCColors.Teal, contentColor = QCColors.Space),
-            ) { Text("Save") }
+            ) { Text(if (saveBlocked) "Fix key first" else "Save") }
         }
     }
 }
@@ -327,6 +371,78 @@ private fun modelPlaceholderFor(backendId: String): String = when (backendId) {
     "gemini" -> "e.g. gemini-2.0-flash"
     "ollama" -> "e.g. llama3.2"
     else -> ""
+}
+
+/**
+ * Local execution for the slash commands parsed off the text input.
+ * Returns the assistant-role reply the panel should show immediately;
+ * side-effects that take real work (clear history, reset first-run)
+ * are launched on [scope]. Never calls the AI backend.
+ */
+private fun handleSlashCommand(
+    parsed: io.github.questclassic.app.ai.SlashCommands.Parsed,
+    cfg: AIConfig,
+    container: io.github.questclassic.app.core.AppContainer,
+    scope: kotlinx.coroutines.CoroutineScope,
+): String {
+    return when (parsed.command) {
+        io.github.questclassic.app.ai.SlashCommands.Command.HELP ->
+            io.github.questclassic.app.ai.SlashCommands.helpLines().joinToString("\n")
+        io.github.questclassic.app.ai.SlashCommands.Command.STATUS,
+        io.github.questclassic.app.ai.SlashCommands.Command.WHOAMI -> {
+            "Active: ${cfg.assistantName} · backend=${cfg.backendId} · model=${cfg.model.ifBlank { "(default)" }}"
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.CLEAR -> {
+            scope.launch { container.chatHistory.clear(cfg.backendId) }
+            "Chat history cleared for ${cfg.backendId}."
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.SWITCH -> {
+            val target = parsed.args.firstOrNull()?.lowercase()
+            if (target == null || container.ai.backends.none { it.id == target }) {
+                "Usage: /switch {claude|openai|gemini|ollama}"
+            } else {
+                scope.launch { container.ai.save(cfg.copy(backendId = target)) }
+                "Switched active backend to $target. Reopen the panel to refresh."
+            }
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.RENAME -> {
+            val newName = parsed.args.joinToString(" ").trim()
+            if (newName.isBlank()) "Usage: /rename <new name>"
+            else {
+                scope.launch {
+                    container.ai.save(
+                        cfg.copy(
+                            assistantName = newName,
+                            perBackendNames = cfg.perBackendNames + (cfg.backendId to newName),
+                        )
+                    )
+                }
+                "Renamed to $newName for backend ${cfg.backendId}."
+            }
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.EXPORT -> {
+            scope.launch {
+                val history = container.chatHistory.load(cfg.backendId)
+                val md = io.github.questclassic.app.ai.TranscriptExporter.export(
+                    backendId = cfg.backendId,
+                    assistantName = cfg.assistantName,
+                    history = history,
+                    format = io.github.questclassic.app.ai.TranscriptExporter.Format.MARKDOWN,
+                )
+                container.notifications.post(
+                    severity = io.github.questclassic.app.core.NotificationCenter.Severity.INFO,
+                    category = io.github.questclassic.app.core.NotificationCenter.Category.AI,
+                    title = "Transcript exported",
+                    body = "${md.length} chars (preview in Notifications panel)",
+                )
+            }
+            "Transcript export queued; see Notifications for the result."
+        }
+        io.github.questclassic.app.ai.SlashCommands.Command.RESET -> {
+            scope.launch { container.firstRun.reset() }
+            "First-run wizard reset. Reopen the app to see it again."
+        }
+    }
 }
 
 @Composable
