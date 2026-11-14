@@ -113,6 +113,51 @@ All notable changes to QuestClassic are documented here. Format follows [Keep a 
 - **LogRingBuffer** (`core/LogRingBuffer.kt`). In-memory log ring that runs SecretRedactor on write; backs DiagnosticsBundle's log attachment without needing adb.
 - **ScriptTemplates** (`core/ScriptTemplates.kt`). 14 copy-ready adb / pm one-liners across 7 categories for the Dev Super-Mode panel. Firmware + passthrough entries root-gated.
 
+### Added — fourth wave (wire-ups + more modules)
+
+#### Wire-ups
+
+- **AIAssistantPanel send path** now routes through `WakeWordDispatcher`, `SlashCommands`, `HistoryCompactor`, `AssistantToneProfile`, `PromptInjectionHeuristics`, and posts the resulting notices via `NotificationCenter`.
+- **AIAssistantPanel settings form** runs `ApiKeyValidator` on every keystroke — Save is disabled with a 'Fix key first' label when a shape error fires.
+- **AIAssistantPanel draft field** persists through `DraftStore` (per-backend, survives restart; cleared on send).
+- **Every `AIBackend` is wrapped in `RateLimitedBackend`** so per-provider token buckets guard against runaway sends.
+- **`QuestClassicApplication.onCreate`** marks phase boundaries on a `BootTiming` and seeds a `LogRingBuffer`.
+- **`VirtualMonitorPanel`** displays the per-SoC tier from `VirtualMonitorEstimator` and scans the LAN via `NsdDiscoverer`.
+- **`ControllerHaptics.playSequence`** chains patterns through an inter-pattern gap.
+- **New home-screen tiles**: Setup wizard, Notifications, Experimental Flags, Diagnostics Bundle, Preferences, Script Templates (home-tile count 21 → 27).
+
+#### New modules
+
+- **NsdDiscoverer** (`core/NsdDiscoverer.kt`). Android-side mDNS resolver pairing with the companion's discovery crate.
+- **WifiReachability** (`core/WifiReachability.kt`). Short-timeout GET for pre-save endpoint verification.
+- **UrlNormalizer** (`core/UrlNormalizer.kt`). Canonicalises user-typed endpoints + LAN-only check.
+- **HttpErrorMapper** (`ai/HttpErrorMapper.kt`). Turns provider HTTP statuses into actionable sentences.
+- **MarkdownForTts** (`ai/MarkdownForTts.kt`). Strips Markdown before TTS reads a reply.
+- **BatteryWatcher**, **ThermalMonitor** (`core/`). One-shot threshold state machines for battery + thermal notices.
+- **FuzzyCommandMatcher** (`ai/FuzzyCommandMatcher.kt`). 'Did you mean /help?' over slash typos.
+- **ChatTitleGenerator** (`ai/ChatTitleGenerator.kt`). Readable title from the first user message.
+- **TextInputSanitizer** (`core/TextInputSanitizer.kt`). Strip zero-width, fix curly quotes, normalise newlines.
+- **TemperatureMapper** (`ai/TemperatureMapper.kt`). Normalised 0..100 int to provider-native float.
+- **PairingCode** (`core/PairingCode.kt`). Confusion-resistant 9-char code for companion handshake.
+- **ProviderHealthCache** (`ai/ProviderHealthCache.kt`). Per-backend last-call state with TTL.
+- **MouseCoordMapper** (`core/MouseCoordMapper.kt`). Headset ray-hit to companion mouse coords.
+- **ControllerAxisDeadzone** (`core/ControllerAxisDeadzone.kt`). Joystick deadzone + outer clamp + expo.
+- **AudioDucker** (`ai/AudioDucker.kt`). Background-stream gain math while TTS speaks.
+- **HistoryIndex** (`ai/HistoryIndex.kt`). Substring + token-prefix search over chat history.
+- **NoticeBatcher** (`core/NoticeBatcher.kt`). Collapse repeated notices into '×N' summaries.
+
+#### New panels
+
+- **NotificationsPanel** (`ui/panels/NotificationsPanel.kt`).
+- **ExperimentalFlagsPanel** (`ui/panels/ExperimentalFlagsPanel.kt`).
+- **DiagnosticsBundlePanel** (`ui/panels/DiagnosticsBundlePanel.kt`).
+- **UserPrefsPanel** (`ui/panels/UserPrefsPanel.kt`).
+- **ScriptTemplatesPanel** (`ui/panels/ScriptTemplatesPanel.kt`).
+
+### Fixed — fourth wave
+
+- `ControllerAxisDeadzone` landed with `kotlin.math.pow` (no such top-level fn); hot-fixed to use the `Double.pow(Double)` extension.
+
 ## [0.2.0] - 2026-11-08
 
 ### Added
