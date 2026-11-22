@@ -6,7 +6,7 @@
 #   - Kotlin 2.0.21 → 2.1.21
 #   - compose-bom to the 2025.10 line (compile-sdk 36 + Kotlin 2.1 compatible)
 #   - compileSdk 35 → 36 (Android 15 → 16 SDK surface)
-agp = "8.9.3"
+agp = "9.5.2"
 kotlin = "2.1.21"
 compose-bom = "2025.10.00"
 activity-compose = "1.10.1"
